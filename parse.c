@@ -22,7 +22,7 @@ char is_quote(char c)
   return c == '\'' || c == '`' || c == ',';
 }
 
-char is_paren(c)
+char is_paren(char c)
 {
   return c == '(' || c == ')' || c == '[' || c == ']';
 }

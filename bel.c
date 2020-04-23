@@ -5,7 +5,7 @@
 #include "pair.h"
 #include "parse.h"
 
-void main()
+int main()
 {
   int c;
 
