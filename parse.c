@@ -101,6 +101,7 @@ char tt[] = "t";
 char tq[] = "'";
 char tupon[] = "upon";
 char tcompose[] = "compose";
+char tno[] = "no";
 
 void expand_token(char *str, int start, int end)
 {
@@ -196,6 +197,17 @@ void expand_token(char *str, int start, int end)
     return;
   }
 
+  if (str[start] == '~') {
+    // if only 1 long, error
+    parse_token(op, 0, 1);
+    parse_token(tcompose, 0, 7);
+    parse_token(tno, 0, 3);
+    parse_token(str, start + 1, end);
+    parse_token(cp, 0, 1);
+
+    return;
+  }
+
   /*
   if (token_expandable() && needs_expand()) {
     printf("EXPAND#");
@@ -216,15 +228,13 @@ void read_token(void)
     }
   }
 
-  expand_token(token, 0, token_i);
-
-  /*
   if (token_expandable() && needs_expand()) {
     expand_token(token, 0, token_i);
   } else {
     parse_token(token, 0, token_i);
   }
 
+  /*
   printf(token);
   printf("%i %i\n", 0, token_i);
   */
