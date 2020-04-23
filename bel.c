@@ -2,9 +2,6 @@
 
 #define MAX_TOKEN 256
 
-char token[MAX_TOKEN];
-int token_i = 0;
-
 enum escapes { BELL  = '\a', TAB ='\t', NEWLINE = '\n', RETURN = '\r' };
 
 char is_escape(char c)
@@ -29,31 +26,23 @@ char is_paren(c)
 
 char is_delimiter(char c)
 {
-  return c == '\\' || is_whitespace(c) || is_paren(c) || is_quote(c);
+  return is_whitespace(c) || is_paren(c) || is_quote(c);
 }
+
+char token[MAX_TOKEN];
+int token_i = 0;
 
 char in_char = 0;
 char in_comma = 0;
 
 void parse_token()
 {
-  if (token[1] == '\0') {
-    switch (token[0]) {
-    case '\\':
-      if (in_char) {
-        in_char = 0;
-      } else {
-        in_char = 1;
-        return;
-      }
-
-    case ',':
-      if (in_comma) {
-        in_comma = 0;
-      } else {
-        in_comma = 1;
-        return;
-      }
+  if (token[1] == '\0' && token[0] == ',') {
+    if (in_comma) {
+      in_comma = 0;
+    } else {
+      in_comma = 1;
+      return;
     }
   }
 
@@ -62,8 +51,6 @@ void parse_token()
 }
 
 char in_comment = 0;
-char expect[3];
-int expect_i = 0;
 
 void parse_char(char c)
 {
@@ -75,50 +62,9 @@ void parse_char(char c)
     return;
   }
 
-  if (in_char) {
-    /* need to check for \bel \cr \lf \sp \tab */
-    switch (c) {
-    case 'b':
-      expect[0] = 'e';
-      expect[1] = 'l';
-      expect[2] = '\0';
-      return;
-
-    case 'c':
-      expect[0] = 'r';
-      expect[1] = '\0';
-      return;
-
-    case 'l':
-      expect[0] = 'f';
-      expect[1] = '\0';
-      return;
-
-    case 's':
-      expect[0] = 'p';
-      expect[1] = '\0';
-      return;
-
-    case 't':
-      expect[0] = 'a';
-      expect[1] = 'b';
-      expect[2] = '\0';
-      return;
-    }
-
-    in_char = 0;
-
-    token[1] = c;
-    token[2] = '\0';
-
-    parse_token();
-
+  if (c == ';') {
+    in_comment = 1;
     return;
-  } else {
-    if (c == ';') {
-      in_comment = 1;
-      return;
-    }
   }
 
   if (in_comma) {
@@ -144,7 +90,9 @@ void parse_char(char c)
     exit(1);
   }
 
-  if (is_delimiter(c)) {
+  if (is_delimiter(c) && !(in_char && (is_paren(c) || is_quote(c)))) {
+    in_char = 0;
+
     if (token_i > 0) {
       token[token_i] = '\0';
       token_i = 0;
@@ -152,7 +100,7 @@ void parse_char(char c)
       parse_token();
     }
 
-    if (c == '\\' || is_paren(c) || is_quote(c)) {
+    if (is_paren(c) || is_quote(c)) {
       token[0] = c;
       token[1] = '\0';
 
@@ -160,6 +108,10 @@ void parse_char(char c)
     }
 
     return;
+  }
+
+  if (c == '\\') {
+    in_char = 1;
   }
 
   token[token_i++] = c;
