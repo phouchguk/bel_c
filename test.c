@@ -5,7 +5,7 @@
 #include "pair.h"
 #include "print.h"
 
-void main()
+int main()
 {
   struct cell nil = { SYM, 0 };
   struct cell t = { SYM, 4 };
