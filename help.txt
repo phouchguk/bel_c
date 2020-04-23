@@ -1,0 +1,3 @@
+cat short.bel | ../tcc pair.c parse.c -run bel.c
+cat bel.bel | ../tcc pair.c parse.c -run bel.c
+../tcc pair.c parse.c print.c sym.c -run test.c
