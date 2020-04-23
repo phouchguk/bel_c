@@ -32,6 +32,42 @@ char is_delimiter(char c)
 char token[MAX_TOKEN];
 int token_i = 0;
 
+/* if expandable and needs expand, expand into an expand buffer and pass that along instead of token buffer */
+/* need to handle spaces in strings (leave escape chars until parse_string?) */
+
+char needs_expand() {
+  int i = 0;
+
+  while (1) {
+    switch (token[i++]) {
+    case '\0':
+      return 0;
+    case '|':
+    case '!':
+    case '.':
+    case ':':
+    case '~':
+      return 1;
+    }
+  }
+}
+
+char token_expandable() {
+  if (token[1] == '\0' || token[2] == '\0') {
+    /* needs to be at least 3 chars long */
+    return 0;
+  }
+
+  switch (token[0]) {
+  case '"':  /* string */
+  case '\\': /* char */
+  case '|':  /* escaped token */
+    return 0;
+  default:
+    return 1;
+  }
+}
+
 char in_char = 0;
 char in_comma = 0;
 
@@ -44,6 +80,10 @@ void parse_token()
       in_comma = 1;
       return;
     }
+  }
+
+  if (token_expandable() && needs_expand()) {
+    printf("EXPAND#");
   }
 
   printf(token);
