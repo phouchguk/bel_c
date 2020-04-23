@@ -5,11 +5,11 @@
 char token[MAX_TOKEN];
 int token_i = 0;
 
-enum escapes { BELL  = '\a', BACKSPACE = '\b', TAB ='\t', NEWLINE = '\n', VTAB = '\v', RETURN = '\r' };
+enum escapes { BELL  = '\a', TAB ='\t', NEWLINE = '\n', RETURN = '\r' };
 
 char is_escape(char c)
 {
-  return c == BELL || c == BACKSPACE || c == TAB || c == NEWLINE || c == VTAB || c == RETURN;
+  return c == BELL || c == TAB || c == NEWLINE || c == RETURN;
 }
 
 char is_whitespace(char c)
@@ -29,19 +29,31 @@ char is_paren(c)
 
 char is_delimiter(char c)
 {
-  return is_whitespace(c) || is_paren(c) || is_quote(c);
+  return c == '\\' || is_whitespace(c) || is_paren(c) || is_quote(c);
 }
 
+char in_char = 0;
 char in_comma = 0;
 
 void parse_token()
 {
-  if (token[0] == ',' && token[1] == '\0') {
-    if (in_comma) {
-      in_comma = 0;
-    } else {
-      in_comma = 1;
-      return;
+  if (token[1] == '\0') {
+    if (token[0] == '\\') {
+      if (in_char) {
+        in_char = 0;
+      } else {
+        in_char = 1;
+        return;
+      }
+    }
+
+    if (token[0] == ',') {
+      if (in_comma) {
+        in_comma = 0;
+      } else {
+        in_comma = 1;
+        return;
+      }
     }
   }
 
@@ -61,9 +73,21 @@ void parse_char(char c)
     return;
   }
 
-  if (c == ';') {
-    in_comment = 1;
+  if (in_char) {
+    /* need to check for \bel \cr \lf \sp \tab */
+    in_char = 0;
+
+    token[1] = c;
+    token[2] = '\0';
+
+    parse_token();
+
     return;
+  } else {
+    if (c == ';') {
+      in_comment = 1;
+      return;
+    }
   }
 
   if (in_comma) {
@@ -97,7 +121,7 @@ void parse_char(char c)
       parse_token();
     }
 
-    if (is_paren(c) || is_quote(c)) {
+    if (c == '\\' || is_paren(c) || is_quote(c)) {
       token[0] = c;
       token[1] = '\0';
 

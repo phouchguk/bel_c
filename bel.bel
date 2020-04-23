@@ -1182,8 +1182,8 @@
 (syn \" (s base share)
   (list (rddelim s \") share))
 
-(syn \¦ (s base share)
-  (list (sym (rddelim s \¦)) share))
+(syn \| (s base share)
+  (list (sym (rddelim s \|)) share))
 
 (def rddelim (s d (o esc))
   (let c (rdc s)
@@ -1432,9 +1432,9 @@
 (def prsymbol (x s)
   (let cs (nom x)
     (let odd (~= (saferead (list cs)) x)
-      (if odd (prc \¦ s))
-      (presc cs \¦ s)
-      (if odd (prc \¦ s)))))
+      (if odd (prc \| s))
+      (presc cs \| s)
+      (if odd (prc \| s)))))
 
 (def prnum (r i s)
   (unless (and (= r srzero) (~= i srzero))
@@ -1798,4 +1798,3 @@
     (if (id v eof)  nil
         (isa!tab v) (inst name (cddr v))
                     (err 'inst-nontable))))
-
