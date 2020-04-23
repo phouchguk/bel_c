@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "type.h";
-#include "pair.h";
+#include "type.h"
+#include "pair.h"
 
 #define MAX_CELL 1024
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "parse.h";
+#include "parse.h"
 
 #define MAX_TOKEN 256
 
