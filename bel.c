@@ -1,40 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "type.h";
+#include "pair.h"
+
 #define MAX_TOKEN 256
-#define MAX_CELL 1024
 #define MAX_SYM 1024
 
-enum escapes { BELL  = '\a', TAB = '\t', NEWLINE = '\n', RETURN = '\r' };
-enum bel_t { CHAR, SYM, PAIR, STREAM };
-
-struct cell {
-  char t;
-  int val;
-};
-
-struct cell the_cars[MAX_CELL];
-
-struct cell the_cdrs[MAX_CELL];
-
-int cell_i = 0;
-
-struct cell join(struct cell a, struct cell d)
-{
-  if (cell_i >= MAX_CELL) {
-    printf("out of cell mem -- JOIN\n");
-    exit(1);
-  }
-
-  the_cars[cell_i] = a;
-  the_cdrs[cell_i] = d;
-
-  struct cell p;
-  p.t = PAIR;
-  p.val = cell_i++;
-
-  return p;
-}
+enum escape { BELL  = '\a', TAB = '\t', NEWLINE = '\n', RETURN = '\r' };
 
 char sym[MAX_SYM] = "nil t o apply";
 int sym_i = 14;
@@ -209,9 +182,9 @@ void pr(struct cell c)
 
   case PAIR:
     printf("(");
-    pr(the_cars[c.val]);
+    pr(car(c));
     printf(" . ");
-    pr(the_cdrs[c.val]);
+    pr(cdr(c));
     printf(")");
     break;
   }
@@ -236,11 +209,32 @@ void main()
   - when gc if type is file, close pointer if not closed (will be (lit fp <fp> t/nil <buff>) ), set to 0 in array
 
   struct cell nil = { SYM, 0 };
-  struct cell x = { SYM, 8 };
-  struct cell y = { CHAR, 'g' };
-  struct cell z = join(x, y);
-  pr(join(nil, z));
+  struct cell t = { SYM, 4 };
 
+  struct cell x = { SYM, 8 };
+
+  struct cell g = { CHAR, 'g' };
+  struct cell s = { CHAR, 's' };
+
+  struct cell z1 = join(x, g);
+  struct cell z2 = join(nil, z1);
+
+  pr(z2);
+  printf("\n");
+
+  pr(car(z1));
+  printf("\n");
+
+  pr(cdr(z1));
+  printf("\n");
+
+  xar(z1, s);
+  xdr(z1, t);
+
+  xar(z2, x);
+
+  pr(z2);
+  printf("\n");
   */
 
   while ((c = getchar()) != EOF) {
