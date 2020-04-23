@@ -1,5 +1,5 @@
 cc=gcc
-CFLAGS=-Wall -Wpedantic -Wswitch -Werror
+CFLAGS=-Ofast -Wall -Wpedantic -Wswitch -Werror
 bel_objs= bel.o pair.o parse.o
 test_objs= test.o pair.o print.o sym.o
 

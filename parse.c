@@ -80,7 +80,22 @@ char token_expandable(void) {
 char in_char = 0;
 char in_comma = 0;
 
-void parse_token(void)
+void parse_token(int start, int end)
+{
+  int i, j;
+  char tok[(end - start) + 1];
+
+  for (i = start, j =0; i < end; i++, j++) {
+    tok[j] = token[i];
+  }
+
+  tok[j] = '\0';
+
+  printf(tok);
+  putchar(' ');
+}
+
+void read_token(void)
 {
   if (token[1] == '\0' && token[0] == ',') {
     if (in_comma) {
@@ -91,18 +106,26 @@ void parse_token(void)
     }
   }
 
+  /*
   if (token_expandable() && needs_expand()) {
     printf("EXPAND#");
   }
+  */
 
+  /*
   printf(token);
-  putchar(' ');
+  printf("%i %i\n", 0, token_i);
+  */
+
+  parse_token(0, token_i);
+
+  token_i = 0;
 }
 
 void parse_token_final(void) {
   if (token_i > 0) {
     token[token_i] = '\0';
-    parse_token();
+    read_token();
   }
 
   printf("\n");
@@ -132,15 +155,17 @@ void parse_char(char c)
 
       token[1] = '@';
       token[2] = '\0';
+      token_i = 2;
 
-      parse_token();
+      read_token();
 
       /* don't continue parsing '@' */
       return;
     }
 
     /* parse previous ',', continue parsing c */
-    parse_token();
+    token_i = 1;
+    read_token();
   }
 
   if (token_i == MAX_TOKEN) {
@@ -153,16 +178,16 @@ void parse_char(char c)
 
     if (token_i > 0) {
       token[token_i] = '\0';
-      token_i = 0;
 
-      parse_token();
+      read_token();
     }
 
     if (is_paren(c) || is_quote(c)) {
       token[0] = c;
       token[1] = '\0';
+      token_i = 1;
 
-      parse_token();
+      read_token();
     }
 
     return;
