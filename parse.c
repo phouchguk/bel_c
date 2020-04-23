@@ -42,7 +42,7 @@ char token[MAX_TOKEN];
 int token_i = 0;
 
 /* if expandable and needs expand, expand into an expand buffer and pass that along instead of token buffer */
-/* need to handle spaces in strings (leave escape chars until parse_string?) */
+/* need to handle spaces in strings/|symbols| (leave escape chars until parse_string?) */
 
 char needs_expand(void) {
   int i = 0;
@@ -80,19 +80,44 @@ char token_expandable(void) {
 char in_char = 0;
 char in_comma = 0;
 
-void parse_token(int start, int end)
+void parse_token(char *str, int start, int end)
 {
   int i, j;
   char tok[(end - start) + 1];
 
-  for (i = start, j =0; i < end; i++, j++) {
-    tok[j] = token[i];
+  for (i = start, j = 0; i < end; i++, j++) {
+    tok[j] = str[i];
   }
 
   tok[j] = '\0';
 
   printf(tok);
   putchar(' ');
+}
+
+char op[] = "(";
+char cp[] = ")";
+char tt[] = "t";
+char tq[] = "???";
+
+void expand_token(char *str, int start, int end)
+{
+  int i, j;
+
+  for (i = start, j = 0; i < end; i++, j++) {
+    if (token[i] == '|') {
+      parse_token(op, 0, 1);
+      parse_token(tt, 0, 1);
+      parse_token(str, start, i);
+      parse_token(str, i + 1, end);
+      parse_token(cp, 0, 1);
+
+      return;
+    }
+  }
+
+  printf("EXPAND#");
+  parse_token(str, start, end);
 }
 
 void read_token(void)
@@ -106,18 +131,16 @@ void read_token(void)
     }
   }
 
-  /*
   if (token_expandable() && needs_expand()) {
-    printf("EXPAND#");
+    expand_token(token, 0, token_i);
+  } else {
+    parse_token(token, 0, token_i);
   }
-  */
 
   /*
   printf(token);
   printf("%i %i\n", 0, token_i);
   */
-
-  parse_token(0, token_i);
 
   token_i = 0;
 }

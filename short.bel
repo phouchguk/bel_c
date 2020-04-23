@@ -1,7 +1,7 @@
 ; Bel in Bel. 9 October 2019, 9:14 GMT
 
 
-(def no (x)
+(def no (x|atom)
   (id x nil))
 
 (def atom (x)
