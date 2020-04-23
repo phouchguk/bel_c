@@ -99,7 +99,8 @@ char op[] = "(";
 char cp[] = ")";
 char tt[] = "t";
 char tq[] = "'";
-char upon[] = "upon";
+char tupon[] = "upon";
+char tcompose[] = "compose";
 
 void expand_token(char *str, int start, int end)
 {
@@ -118,6 +119,7 @@ void expand_token(char *str, int start, int end)
     }
   }
 
+  // check for . or !
   char dot_or_bang = 0;
 
   for (i = start; i < end; i++) {
@@ -135,7 +137,7 @@ void expand_token(char *str, int start, int end)
     for (i = start; i < end; i++) {
       if (str[i] == '.' || str[i] == '!') {
         if (i == 0) {
-          parse_token(upon, 0, 4);
+          parse_token(tupon, 0, 4);
         }
 
         // if last == i bang/dot together -- bad?
@@ -145,6 +147,43 @@ void expand_token(char *str, int start, int end)
         if (str[i] == '!') {
           parse_token(tq, 0, 1);
         }
+
+        last = i + 1;
+      }
+    }
+
+    expand_token(str, last, end);
+
+    parse_token(cp, 0, 1);
+
+    return;
+  }
+
+  // check for :
+  char has_colon = 0;
+
+  for (i = start; i < end; i++) {
+    if (str[i] == ':') {
+      has_colon = 1;
+      break;
+    }
+  }
+
+  if (has_colon) {
+    parse_token(op, 0, 1);
+    parse_token(tcompose, 0, 7);
+
+    int last = start;
+
+    for (i = start; i < end; i++) {
+      if (str[i] == ':') {
+        if (i == 0) {
+          // error
+        }
+
+        // if last == i bang/dot together -- bad?
+
+        expand_token(str, last, i);
 
         last = i + 1;
       }
