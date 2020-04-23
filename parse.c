@@ -17,6 +17,11 @@ char is_whitespace(char c)
   return c < 33 || c > 126;
 }
 
+char is_valid(char c)
+{
+  return is_escape(c) || c > 31 || c < 127;
+}
+
 char is_quote(char c)
 {
   return c == '\'' || c == '`' || c == ',';
@@ -32,13 +37,14 @@ char is_delimiter(char c)
   return is_whitespace(c) || is_paren(c) || is_quote(c);
 }
 
+char literal = '\0';
 char token[MAX_TOKEN];
 int token_i = 0;
 
 /* if expandable and needs expand, expand into an expand buffer and pass that along instead of token buffer */
 /* need to handle spaces in strings (leave escape chars until parse_string?) */
 
-char needs_expand() {
+char needs_expand(void) {
   int i = 0;
 
   while (1) {
@@ -55,7 +61,7 @@ char needs_expand() {
   }
 }
 
-char token_expandable() {
+char token_expandable(void) {
   if (token[1] == '\0' || token[2] == '\0') {
     /* needs to be at least 3 chars long */
     return 0;
@@ -74,7 +80,7 @@ char token_expandable() {
 char in_char = 0;
 char in_comma = 0;
 
-void parse_token()
+void parse_token(void)
 {
   if (token[1] == '\0' && token[0] == ',') {
     if (in_comma) {
@@ -98,6 +104,8 @@ void parse_token_final(void) {
     token[token_i] = '\0';
     parse_token();
   }
+
+  printf("\n");
 }
 
 char in_comment = 0;
