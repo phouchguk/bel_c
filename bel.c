@@ -1,8 +1,43 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define MAX_TOKEN 256
+#define MAX_CELL 1024
+#define MAX_SYM 1024
 
-enum escapes { BELL  = '\a', TAB ='\t', NEWLINE = '\n', RETURN = '\r' };
+enum escapes { BELL  = '\a', TAB = '\t', NEWLINE = '\n', RETURN = '\r' };
+enum bel_t { CHAR, SYM, PAIR, STREAM };
+
+struct cell {
+  char t;
+  int val;
+};
+
+struct cell the_cars[MAX_CELL];
+
+struct cell the_cdrs[MAX_CELL];
+
+int cell_i = 0;
+
+struct cell join(struct cell a, struct cell d)
+{
+  if (cell_i >= MAX_CELL) {
+    printf("out of cell mem -- JOIN\n");
+    exit(1);
+  }
+
+  the_cars[cell_i] = a;
+  the_cdrs[cell_i] = d;
+
+  struct cell p;
+  p.t = PAIR;
+  p.val = cell_i++;
+
+  return p;
+}
+
+char sym[MAX_SYM] = "nil t o apply";
+int sym_i = 14;
 
 char is_escape(char c)
 {
@@ -11,7 +46,7 @@ char is_escape(char c)
 
 char is_whitespace(char c)
 {
-  return is_escape(c) || c == ' ';
+  return c < 33 || c > 126;
 }
 
 char is_quote(char c)
@@ -157,9 +192,56 @@ void parse_char(char c)
   token[token_i++] = c;
 }
 
+void pr(struct cell c)
+{
+  switch (c.t) {
+  case STREAM:
+    printf("<stream>");
+    break;
+
+  case SYM:
+    printf("%s", sym + c.val);
+    break;
+
+  case CHAR:
+    printf("\\%c", c.val);
+    break;
+
+  case PAIR:
+    printf("(");
+    pr(the_cars[c.val]);
+    printf(" . ");
+    pr(the_cdrs[c.val]);
+    printf(")");
+    break;
+  }
+}
+
 void main()
 {
   int c;
+
+  sym[3] = '\0';
+  sym[5] = '\0';
+  sym[7] = '\0';
+
+  /*
+  printf("%s\n", token);
+  printf("%s\n", token + 4);
+  printf("%s\n", token + 6);
+  printf("%s\n", token + 8);
+
+  - cell struct is bel_t and int (no point having char in an union if we have an int anyway)
+  - array of file pointers (MAX_FP), when open scan for 0
+  - when gc if type is file, close pointer if not closed (will be (lit fp <fp> t/nil <buff>) ), set to 0 in array
+
+  struct cell nil = { SYM, 0 };
+  struct cell x = { SYM, 8 };
+  struct cell y = { CHAR, 'g' };
+  struct cell z = join(x, y);
+  pr(join(nil, z));
+
+  */
 
   while ((c = getchar()) != EOF) {
     parse_char(c);
