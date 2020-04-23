@@ -98,25 +98,71 @@ void parse_token(char *str, int start, int end)
 char op[] = "(";
 char cp[] = ")";
 char tt[] = "t";
-char tq[] = "???";
+char tq[] = "'";
+char upon[] = "upon";
 
 void expand_token(char *str, int start, int end)
 {
-  int i, j;
+  int i;
 
-  for (i = start, j = 0; i < end; i++, j++) {
-    if (token[i] == '|') {
+  // check for |
+  for (i = start; i < end; i++) {
+    if (str[i] == '|') {
       parse_token(op, 0, 1);
       parse_token(tt, 0, 1);
       parse_token(str, start, i);
-      parse_token(str, i + 1, end);
+      expand_token(str, i + 1, end);
       parse_token(cp, 0, 1);
 
       return;
     }
   }
 
-  printf("EXPAND#");
+  char dot_or_bang = 0;
+
+  for (i = start; i < end; i++) {
+    if (str[i] == '.' || str[i] == '!') {
+      dot_or_bang = 1;
+      break;
+    }
+  }
+
+  if (dot_or_bang) {
+    parse_token(op, 0, 1);
+
+    int last = start;
+
+    for (i = start; i < end; i++) {
+      if (str[i] == '.' || str[i] == '!') {
+        if (i == 0) {
+          parse_token(upon, 0, 4);
+        }
+
+        // if last == i bang/dot together -- bad?
+
+        expand_token(str, last, i);
+
+        if (str[i] == '!') {
+          parse_token(tq, 0, 1);
+        }
+
+        last = i + 1;
+      }
+    }
+
+    expand_token(str, last, end);
+
+    parse_token(cp, 0, 1);
+
+    return;
+  }
+
+  /*
+  if (token_expandable() && needs_expand()) {
+    printf("EXPAND#");
+  }
+  */
+
   parse_token(str, start, end);
 }
 
@@ -131,13 +177,15 @@ void read_token(void)
     }
   }
 
+  expand_token(token, 0, token_i);
+
+  /*
   if (token_expandable() && needs_expand()) {
     expand_token(token, 0, token_i);
   } else {
     parse_token(token, 0, token_i);
   }
 
-  /*
   printf(token);
   printf("%i %i\n", 0, token_i);
   */
