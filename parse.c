@@ -294,6 +294,16 @@ void parse_token_final(void) {
     exit(1);
   }
 
+  if (in_str) {
+    printf("ERR unterminated string -- PARSE_TOKEN_FINAL\n");
+    exit(1);
+  }
+
+  if (in_char) {
+    printf("ERR unterminated char -- PARSE_TOKEN_FINAL\n");
+    exit(1);
+  }
+
   if (token_i > 0) {
     token[token_i] = '\0';
     read_token();
@@ -303,6 +313,7 @@ void parse_token_final(void) {
 }
 
 char in_comment = 0;
+char str_escape_quote = 0;
 
 void parse_char(char c)
 {
@@ -364,12 +375,20 @@ void parse_char(char c)
     return;
   }
 
-  if (!in_str && c == '\\') {
-    in_char = 1;
+  if (c == '\\') {
+    if (in_str) {
+      str_escape_quote = 1;
+    } else {
+      in_char = 1;
+    }
   }
 
   if (!in_char && c == '"') {
-    in_str = in_str ? 0 : 1;
+    if (str_escape_quote) {
+      str_escape_quote = 0;
+    } else {
+      in_str = in_str ? 0 : 1;
+    }
   }
 
   token[token_i++] = c;

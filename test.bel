@@ -11,3 +11,6 @@
   (map [do (print _) (prc \()] args)
   (prc \lf)
   (last args))
+
+(do (map [prc _ s] " \"'`,[\n(.\")],@ ")
+    (print rest s names newhist))
