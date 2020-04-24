@@ -102,6 +102,8 @@ char tq[] = "'";
 char tupon[] = "upon";
 char tcompose[] = "compose";
 char tno[] = "no";
+char tfn[] = "fn";
+char t_[] = "_";
 
 void expand_token(char *str, int start, int end)
 {
@@ -217,13 +219,60 @@ void expand_token(char *str, int start, int end)
   parse_token(str, start, end);
 }
 
+char in_fn_shorthand = 0;
+
 void read_token(void)
 {
-  if (token[1] == '\0' && token[0] == ',') {
-    if (in_comma) {
-      in_comma = 0;
-    } else {
-      in_comma = 1;
+  if (token[1] == '\0') {
+    if (token[0] == ',') {
+      if (in_comma) {
+        in_comma = 0;
+      } else {
+        in_comma = 1;
+        return;
+      }
+    }
+
+    if (token[0] == '[') {
+      if (in_fn_shorthand) {
+        printf("can't nest fn shorthand -- READ_TOKEN\n");
+        exit(1);
+      }
+
+      /* [id x _] -> (fn (_) (id x _))
+       * this is the first part:
+       * [ -> (fn (_) (
+       */
+      parse_token(op, 0, 1);
+      parse_token(tfn, 0, 2);
+
+      parse_token(op, 0, 1);
+      parse_token(t_, 0, 1);
+      parse_token(cp, 0, 1);
+
+      parse_token(op, 0, 1);
+
+      in_fn_shorthand = 1;
+      token_i = 0;
+
+      return;
+    }
+
+    if (token[0] == ']') {
+      if (!in_fn_shorthand) {
+        printf("bad ']' -- READ_TOKEN\n");
+        exit(1);
+      }
+
+      /* this is the last part:
+       * ] -> ))
+       */
+      parse_token(cp, 0, 1);
+      parse_token(cp, 0, 1);
+
+      in_fn_shorthand = 0;
+      token_i = 0;
+
       return;
     }
   }
@@ -243,6 +292,11 @@ void read_token(void)
 }
 
 void parse_token_final(void) {
+  if (in_fn_shorthand) {
+    printf("ERR unclosed fn shorthand -- PARSE_TOKEN_FINAL\n");
+    exit(1);
+  }
+
   if (token_i > 0) {
     token[token_i] = '\0';
     read_token();
@@ -293,7 +347,7 @@ void parse_char(char c)
     exit(1);
   }
 
-  if (is_delimiter(c) && !(in_char && (is_paren(c) || is_quote(c)))) {
+  if (is_delimiter(c) && !(in_char && token_i == 1 && (is_paren(c) || is_quote(c)))) {
     in_char = 0;
 
     if (token_i > 0) {
