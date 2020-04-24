@@ -83,6 +83,12 @@ char in_comma = 0;
 void parse_token(char *str, int start, int end)
 {
   int i, j;
+
+  if (end - start < 1) {
+    printf("ERR zero length token -- PARSE_TOKEN\n");
+    exit(1);
+  }
+
   char tok[(end - start) + 1];
 
   for (i = start, j = 0; i < end; i++, j++) {
@@ -94,9 +100,6 @@ void parse_token(char *str, int start, int end)
   if (tok[0] == '\\' && tok[1] == '\0') {
     printf("bad char -- PARSE_TOKEN\n");
     exit(1);
-  }
-
-  if (tok[0] == '"') {
   }
 
   printf("%s ", tok);
