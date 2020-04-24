@@ -91,8 +91,15 @@ void parse_token(char *str, int start, int end)
 
   tok[j] = '\0';
 
-  printf(tok);
-  putchar(' ');
+  if (tok[0] == '\\' && tok[1] == '\0') {
+    printf("bad char -- PARSE_TOKEN\n");
+    exit(1);
+  }
+
+  if (tok[0] == '\\') {
+  }
+
+  printf("%s ", tok);
 }
 
 char op[] = "(";
@@ -210,12 +217,6 @@ void expand_token(char *str, int start, int end)
     return;
   }
 
-  /*
-  if (token_expandable() && needs_expand()) {
-    printf("EXPAND#");
-  }
-  */
-
   parse_token(str, start, end);
 }
 
@@ -317,7 +318,7 @@ void parse_char(char c)
     return;
   }
 
-  if (c == ';') {
+  if (!in_char && c == ';') {
     in_comment = 1;
     return;
   }
