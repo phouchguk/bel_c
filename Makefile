@@ -1,6 +1,6 @@
 cc=gcc
-CFLAGS=-Ofast -Wall -Wpedantic -Wswitch -Werror
-bel_objs= bel.o pair.o parse.o
+CFLAGS=-O2 -Wall -Wpedantic -Wswitch -Werror
+bel_objs= bel.o pair.o parse.o sym.o
 test_objs= test.o pair.o print.o sym.o
 
 all : bel test
@@ -11,7 +11,7 @@ bel : $(bel_objs)
 test : $(test_objs)
 	cc -o test $(test_objs)
 
-bel.o : type.h pair.h parse.h
+bel.o : type.h pair.h parse.h sym.h
 
 test.o : type.h pair.h print.h
 

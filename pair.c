@@ -11,6 +11,11 @@ struct cell the_cdrs[MAX_CELL];
 
 int cell_i = 0;
 
+char id(struct cell a, struct cell b)
+{
+  return a.t == b.t && a.val == b.val;
+}
+
 struct cell join(struct cell a, struct cell d)
 {
   if (cell_i >= MAX_CELL) {

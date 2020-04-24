@@ -7,8 +7,38 @@
 
 #define MAX_SYM 1024
 
-char sym[MAX_SYM] = "nil t o apply";
-int sym_i = 14;
+char sym[MAX_SYM];
+int sym_i = 0;
+
+struct cell get_sym(char *str)
+{
+  int i, idx, j;
+
+  struct cell c;
+  c.t = SYM;
+
+  // find existing symbol position
+  for (i = 0; i < sym_i; i++) {
+    idx = i;
+
+    for (j = 0; sym[i] == str[j] && i < sym_i; j++, i++) {
+      if (sym[i] == '\0') {
+        // match !
+        c.val = idx;
+        return c;
+      }
+    }
+
+    // skip to next sym
+    while (sym[++i] != '\0' && i < sym_i);
+  }
+
+  // create new symbol
+  c.val = sym_i;
+  while ((sym[sym_i++] = *str++) != '\0');
+
+  return c;
+}
 
 char *nom(struct cell c)
 {
@@ -17,9 +47,16 @@ char *nom(struct cell c)
     exit(1);
   }
 
-  sym[3] = '\0';
-  sym[5] = '\0';
-  sym[7] = '\0';
-
   return sym + c.val;
+}
+
+void sym_init(void)
+{
+  // want nil and t first
+  nil = get_sym("nil");
+  t = get_sym("t");
+
+  // alphabetical after
+  apply = get_sym("apply");
+  o = get_sym("o");
 }

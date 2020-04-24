@@ -4,10 +4,16 @@
 #include "type.h"
 #include "pair.h"
 #include "parse.h"
+#include "sym.h"
 
 int main()
 {
   int c;
+
+  sym_init();
+
+  printf("%c\n", id(nil, nil) ? 't' : 'f');
+  printf("%c\n", id(nil, t) ? 't' : 'f');
 
   while ((c = getchar()) != EOF) {
     parse_char(c);

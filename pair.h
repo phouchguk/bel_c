@@ -6,6 +6,8 @@ struct cell {
   int val;
 };
 
+char id(struct cell a, struct cell b);
+
 struct cell join(struct cell a, struct cell d);
 
 struct cell car(struct cell p);
