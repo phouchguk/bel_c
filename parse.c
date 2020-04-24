@@ -96,7 +96,7 @@ void parse_token(char *str, int start, int end)
     exit(1);
   }
 
-  if (tok[0] == '\\') {
+  if (tok[0] == '"') {
   }
 
   printf("%s ", tok);
@@ -221,6 +221,7 @@ void expand_token(char *str, int start, int end)
 }
 
 char in_fn_shorthand = 0;
+char in_str = 0;
 
 void read_token(void)
 {
@@ -284,11 +285,6 @@ void read_token(void)
     parse_token(token, 0, token_i);
   }
 
-  /*
-  printf(token);
-  printf("%i %i\n", 0, token_i);
-  */
-
   token_i = 0;
 }
 
@@ -318,7 +314,7 @@ void parse_char(char c)
     return;
   }
 
-  if (!in_char && c == ';') {
+  if (!in_char && !in_str && c == ';') {
     in_comment = 1;
     return;
   }
@@ -348,7 +344,7 @@ void parse_char(char c)
     exit(1);
   }
 
-  if (is_delimiter(c) && !(in_char && token_i == 1 && (is_paren(c) || is_quote(c)))) {
+  if (!in_str && is_delimiter(c) && !(in_char && token_i == 1 && (is_paren(c) || is_quote(c)))) {
     in_char = 0;
 
     if (token_i > 0) {
@@ -368,8 +364,12 @@ void parse_char(char c)
     return;
   }
 
-  if (c == '\\') {
+  if (!in_str && c == '\\') {
     in_char = 1;
+  }
+
+  if (!in_char && c == '"') {
+    in_str = in_str ? 0 : 1;
   }
 
   token[token_i++] = c;
