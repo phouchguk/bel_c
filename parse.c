@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "type.h"
+#include "pair.h"
 #include "parse.h"
+#include "sym.h"
 
 #define MAX_TOKEN 255
 
@@ -37,12 +40,12 @@ int is_delimiter(char c)
   return is_whitespace(c) || is_paren(c) || is_quote(c);
 }
 
-char literal = '\0';
+void got_exp(cell exp)
+{
+}
+
 char token[MAX_TOKEN];
 int token_i = 0;
-
-/* if expandable and needs expand, expand into an expand buffer and pass that along instead of token buffer */
-/* need to handle spaces in strings/|symbols| (leave escape chars until parse_string?) */
 
 int needs_expand(void) {
   int i = 0;
@@ -79,29 +82,270 @@ int token_expandable(void) {
 
 int in_char = 0;
 int in_comma = 0;
+int expect_close = 0;
+int improper = 0;
+cell list_stack = 0;
+cell quote_stack = 0;
+char quote_next = '\0';
+const cell char_mask   = CHAR << CELL_SHIFT;
 
-void parse_token(char *str, int start, int end)
+void push_ls(cell x)
+{
+  cell list = car(list_stack);
+  list = join(x, list);
+
+  list_stack = join(list, cdr(list_stack));
+}
+
+void push_qs(cell q)
+{
+  cell list;
+
+  if (quote_stack) {
+    list = car(quote_stack);
+    list = join(q, list);
+    quote_stack = join(list, cdr(quote_stack));
+  } else {
+    quote_stack = join(join(q, 0), 0);
+  }
+}
+
+cell unqn(cell qn, cell atom)
+{
+  while (qn) {
+    atom = join(car(qn), join(atom, 0));
+    qn = cdr(qn);
+  }
+
+  return atom;
+}
+
+cell get_char(const char *str, const int start, const int len)
+{
+  switch (len) {
+  case 2:
+    return str[1] | char_mask;
+
+  case 3:
+    if (str[1] == 's' && str[2] == 'p') {
+      return ' ' | char_mask;
+    }
+
+    if (str[1] == 'l' && str[2] == 'f') {
+      return '\r' | char_mask;
+    }
+
+    if (str[1] == 'c' && str[2] == 'r') {
+      return '\n' | char_mask;
+    }
+
+    break;
+
+  case 4:
+    if (str[1] == 's' && str[2] == 'e' && str[3] == 'l') {
+      return '\a' | char_mask;
+    }
+
+    if (str[1] == 't' && str[2] == 'a' && str[3] == 'b') {
+      return '\t' | char_mask;
+    }
+
+    break;
+  }
+
+  printf("ERR bad char escape -- GET_CHAR\n");
+  exit(1);
+}
+
+void parse_token(const char *str, const int start, const int end)
 {
   int i, j;
+  int len = end - start;
+  cell atom, c, q, list, xs;
   char tok[MAX_TOKEN];
 
-  if (end - start < 1) {
+  if (len < 1) {
     printf("ERR zero length token -- PARSE_TOKEN\n");
     exit(1);
   }
 
-  for (i = start, j = 0; i < end; i++, j++) {
-    tok[j] = str[i];
-  }
-
-  tok[j] = '\0';
-
-  if (tok[0] == '\\' && tok[1] == '\0') {
+  if (str[start] == '\\' && str[start + 1] == '\0') {
     printf("bad char -- PARSE_TOKEN\n");
     exit(1);
   }
 
-  printf("%s ", tok);
+  if (is_quote(str[start]) && (len == 1 || (len == 2 && str[start + 1] == '@'))) {
+    switch(str[start]) {
+    case '\'':
+      push_qs(quote);
+      return;
+
+    case '`':
+      push_qs(bquote);
+      return;
+
+    default:
+      push_qs(len == 1 ? comma : comma_at);
+      return;
+    }
+  }
+
+  if (str[start] == '(') {
+    if (expect_close) {
+      printf("bad ( -- PARSE_TOKEN\n");
+      exit(1);
+    }
+
+    list_stack = join(0, list_stack);
+
+    quote_stack = join(quote_next | char_mask, quote_stack);
+    quote_next = '\0';
+
+    return;
+  }
+
+  if (str[start] == '.') {
+    if (!list_stack || improper || expect_close) {
+      printf("bad . -- PARSE_TOKEN\n");
+      exit(1);
+    }
+
+    improper = 1;
+    return;
+  }
+
+  if (str[start] == ')') {
+    if (!list_stack) {
+      printf("bad ) -- PARSE_TOKEN\n");
+      exit(1);
+    }
+
+    if (improper && !expect_close) {
+      printf("bad . -- PARSE_TOKEN\n");
+      exit(1);
+    }
+
+    q = car(quote_stack);
+    quote_stack = cdr(quote_stack);
+
+    /* get list off list stack */
+    list = car(list_stack);
+    list_stack = cdr(list_stack);
+
+
+    /* reverse list */
+    xs = 0;
+
+    while (list) {
+      xs = join(car(list), xs);
+      list = cdr(list);
+    }
+
+    if (expect_close) {
+      /* make the list improper */
+      while (list) {
+        if (!cdr(cdr(list))) {
+          xdr(list, car(cdr(list)));
+
+          improper = 0;
+          expect_close = 0;
+
+          break;
+        }
+
+        list = cdr(list);
+      }
+    }
+
+    if (q != '\0') {
+      xs = unqn(q, xs);
+    }
+
+    if (list_stack) {
+      /* nested list */
+      push_ls(xs);
+    } else {
+      /* finished top level list */
+      got_exp(xs);
+    }
+
+    return;
+  }
+
+  /* atom - but might get quoted */
+  atom = 0;
+
+  /* TODO: might be a number */
+
+  switch (str[start]) {
+  case '"':
+    /* build list of chars onto atom (reverse, check for escapes) */
+    for (i = end - 1; i >= start; i--) {
+      if (i > start && str[i - 1] == '\\') {
+        switch (str[i]) {
+          case 'a':
+            c = BELL;
+            break;
+
+          case 't':
+            c = TAB;
+            break;
+
+          case 'n':
+            c = NEWLINE;
+            break;
+
+          case 'r':
+            c = RETURN;
+            break;
+
+        default:
+          printf("unrecognised string escape \\%c -- PARSE_TOKEN\n", str[i]);
+          exit(1);
+          break;
+        }
+
+        i--;
+      } else {
+        c = str[i];
+      }
+
+      atom = join(c | char_mask, atom);
+    }
+
+    break;
+
+  case '\\':
+    /* set atom to char (check escape legit) */
+    atom = get_char(str, start, len);
+    break;
+
+  default:
+    /* set atom to symbol */
+    for (i = start, j = 0; i < end; i++, j++) {
+      tok[i] = str[i];
+    }
+
+    tok[i] = '\0';
+    atom = get_sym(tok);
+
+    break;
+  }
+
+  if (quote_next != '\0') {
+    atom = unqn(quote_next, atom);
+    quote_next = '\0';
+  }
+
+  if (improper) {
+    expect_close = 1;
+  }
+
+  if (list_stack) {
+    push_ls(atom);
+  } else {
+    got_exp(atom);
+  }
 }
 
 char op[] = "(";
@@ -299,10 +543,12 @@ void parse_token_final(void) {
     exit(1);
   }
 
+  /*
   if (in_char) {
     printf("ERR unterminated char -- PARSE_TOKEN_FINAL\n");
     exit(1);
   }
+  */
 
   if (token_i > 0) {
     token[token_i] = '\0';

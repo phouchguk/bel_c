@@ -12,9 +12,6 @@ int main()
 
   sym_init();
 
-  printf("%c\n", id(nil, nil) ? 't' : 'f');
-  printf("%c\n", id(nil, t) ? 't' : 'f');
-
   while ((c = getchar()) != EOF) {
     parse_char(c);
   }

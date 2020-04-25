@@ -59,11 +59,15 @@ char *nom(cell c)
 
 void sym_init(void)
 {
-  /* want nil and t first */
+  /* want nil and t first - c code presumes sym nil is 0 */
   nil = get_sym("nil");
   t = get_sym("t");
 
   /* alphabetical after */
   apply = get_sym("apply");
+  bquote = get_sym("bquote");
+  comma = get_sym("comma");
+  comma_at = get_sym("comma_at");
+  quote = get_sym("quote");
   o = get_sym("o");
 }

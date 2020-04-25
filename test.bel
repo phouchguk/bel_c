@@ -7,10 +7,12 @@
 ;a:b:c
 ;~f
 ;x|~f:g!a
-(def prn args
-  (map [do (print _) (prc \()] args)
-  (prc \lf)
-  (last args))
+;(def prn args
+;  (map [do (print _) (prc \()] args)
+;  (prc \lf)
+;  (last args))
 
-(do (map [prc _ s] " \"'`,[\n(.\")],@ ")
-    (print rest s names newhist))
+;(do (map [prc _ s] " \"'`,[\n(.\")],@ ")
+;    (print rest s names newhist))
+
+\g

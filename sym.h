@@ -10,6 +10,10 @@ cell nil;
 cell t;
 
 cell apply;
+cell bquote;
+cell comma;
+cell comma_at;
+cell quote;
 cell o;
 
 #endif
