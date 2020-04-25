@@ -87,8 +87,9 @@ int in_comma = 0;
 int expect_close = 0;
 int improper = 0;
 cell list_stack = 0;
+cell quote_next = 0;
 cell quote_stack = 0;
-char quote_next = '\0';
+
 const cell char_mask = CHAR << CELL_SHIFT;
 
 void push_ls(cell x)
@@ -99,23 +100,13 @@ void push_ls(cell x)
   list_stack = join(list, cdr(list_stack));
 }
 
-void push_qs(cell q)
-{
-  cell list;
-
-  if (quote_stack) {
-    list = car(quote_stack);
-    list = join(q, list);
-    quote_stack = join(list, cdr(quote_stack));
-  } else {
-    quote_stack = join(join(q, 0), 0);
-  }
-}
-
 cell unqn(cell qn, cell atom)
 {
   while (qn) {
-    atom = join(car(qn), join(atom, 0));
+    if (car(qn)) {
+      atom = join(car(qn), join(atom, 0));
+    }
+
     qn = cdr(qn);
   }
 
@@ -163,7 +154,7 @@ void parse_token(const char *str, const int start, const int end)
 {
   int i, j;
   int len = end - start;
-  cell atom, c, q, list, xs;
+  cell atom, c, list, q, xs;
   char tok[MAX_TOKEN];
 
   if (len < 1) {
@@ -179,15 +170,15 @@ void parse_token(const char *str, const int start, const int end)
   if (is_quote(str[start]) && (len == 1 || (len == 2 && str[start + 1] == '@'))) {
     switch(str[start]) {
     case '\'':
-      push_qs(quote);
+      quote_next = join(quote, quote_next);
       return;
 
     case '`':
-      push_qs(bquote);
+      quote_next = join(bquote, quote_next);
       return;
 
     default:
-      push_qs(len == 1 ? comma : comma_at);
+      quote_next = join(len == 1 ? comma : comma_at, quote_next);
       return;
     }
   }
@@ -200,8 +191,8 @@ void parse_token(const char *str, const int start, const int end)
 
     list_stack = join(0, list_stack);
 
-    quote_stack = join(quote_next | char_mask, quote_stack);
-    quote_next = '\0';
+    quote_stack = join(quote_next, quote_stack);
+    quote_next = 0;
 
     return;
   }
@@ -234,7 +225,6 @@ void parse_token(const char *str, const int start, const int end)
     list = car(list_stack);
     list_stack = cdr(list_stack);
 
-
     /* reverse list */
     xs = 0;
 
@@ -259,7 +249,7 @@ void parse_token(const char *str, const int start, const int end)
       }
     }
 
-    if (q != '\0') {
+    if (q) {
       xs = unqn(q, xs);
     }
 
@@ -329,18 +319,18 @@ void parse_token(const char *str, const int start, const int end)
   default:
     /* set atom to symbol */
     for (i = start, j = 0; i < end; i++, j++) {
-      tok[i] = str[i];
+      tok[j] = str[i];
     }
 
-    tok[i] = '\0';
+    tok[j] = '\0';
     atom = get_sym(tok);
 
     break;
   }
 
-  if (quote_next != '\0') {
+  if (quote_next) {
     atom = unqn(quote_next, atom);
-    quote_next = '\0';
+    quote_next = 0;
   }
 
   if (improper) {

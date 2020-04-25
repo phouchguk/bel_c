@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include "pair.h"
+#include "print.h"
 
 #define MAX_CELL 1024
 
@@ -44,7 +45,9 @@ cell car(cell p)
   }
 
   if (!pair(p)) {
-    printf("can't CAR non-pair -- CAR\n");
+    printf("can't CAR non-pair '");
+    pr(p);
+    printf("' -- CAR\n");
     exit(1);
   }
 
