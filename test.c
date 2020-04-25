@@ -7,6 +7,8 @@
 
 int main()
 {
+  int i;
+  char xs[6];
   struct cell nil = { SYM, 0 };
   struct cell t = { SYM, 4 };
 
@@ -35,10 +37,8 @@ int main()
   pr(z2);
   printf("\n");
 
-  int i = 2 + 3;
+  i = 2 + 3;
   i += 1;
-
-  char xs[i];
 
   xs[0] = 'h';
   xs[1] = 'e';
@@ -48,4 +48,6 @@ int main()
   xs[5] = '\0';
 
   printf("%s\n", xs);
+
+  return 0;
 }

@@ -1,5 +1,5 @@
 cc=gcc
-CFLAGS=-O2 -Wall -Wpedantic -Wswitch -Werror
+CFLAGS=-std=c89 -pedantic-errors -O3 -Wall -Wpedantic -Wswitch -Werror
 bel_objs= bel.o pair.o parse.o sym.o
 test_objs= test.o pair.o print.o sym.o
 

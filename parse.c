@@ -3,7 +3,7 @@
 
 #include "parse.h"
 
-#define MAX_TOKEN 256
+#define MAX_TOKEN 255
 
 enum escape { BELL  = '\a', TAB = '\t', NEWLINE = '\n', RETURN = '\r' };
 
@@ -83,13 +83,12 @@ char in_comma = 0;
 void parse_token(char *str, int start, int end)
 {
   int i, j;
+  char tok[MAX_TOKEN];
 
   if (end - start < 1) {
     printf("ERR zero length token -- PARSE_TOKEN\n");
     exit(1);
   }
-
-  char tok[(end - start) + 1];
 
   for (i = start, j = 0; i < end; i++, j++) {
     tok[j] = str[i];
@@ -117,9 +116,11 @@ char t_[] = "_";
 
 void expand_token(char *str, int start, int end)
 {
-  int i;
+  int i, last;
+  char dot_or_bang = 0;
+  char has_colon = 0;
 
-  // check for |
+  /* check for | */
   for (i = start; i < end; i++) {
     if (str[i] == '|') {
       parse_token(op, 0, 1);
@@ -132,9 +133,7 @@ void expand_token(char *str, int start, int end)
     }
   }
 
-  // check for . or !
-  char dot_or_bang = 0;
-
+  /* check for . or ! */
   for (i = start; i < end; i++) {
     if (str[i] == '.' || str[i] == '!') {
       dot_or_bang = 1;
@@ -145,7 +144,7 @@ void expand_token(char *str, int start, int end)
   if (dot_or_bang) {
     parse_token(op, 0, 1);
 
-    int last = start;
+    last = start;
 
     for (i = start; i < end; i++) {
       if (str[i] == '.' || str[i] == '!') {
@@ -153,7 +152,7 @@ void expand_token(char *str, int start, int end)
           parse_token(tupon, 0, 4);
         }
 
-        // if last == i bang/dot together -- bad?
+        /* if last == i bang/dot together -- bad? */
 
         expand_token(str, last, i);
 
@@ -172,9 +171,7 @@ void expand_token(char *str, int start, int end)
     return;
   }
 
-  // check for :
-  char has_colon = 0;
-
+  /* check for : */
   for (i = start; i < end; i++) {
     if (str[i] == ':') {
       has_colon = 1;
@@ -186,15 +183,15 @@ void expand_token(char *str, int start, int end)
     parse_token(op, 0, 1);
     parse_token(tcompose, 0, 7);
 
-    int last = start;
+    last = start;
 
     for (i = start; i < end; i++) {
       if (str[i] == ':') {
         if (i == 0) {
-          // error
+          /*  error */
         }
 
-        // if last == i bang/dot together -- bad?
+        /* if last == i bang/dot together -- bad? */
 
         expand_token(str, last, i);
 
@@ -210,7 +207,7 @@ void expand_token(char *str, int start, int end)
   }
 
   if (str[start] == '~') {
-    // if only 1 long, error
+    /* if only 1 long, error */
     parse_token(op, 0, 1);
     parse_token(tcompose, 0, 7);
     parse_token(tno, 0, 3);

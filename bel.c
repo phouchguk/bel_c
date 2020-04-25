@@ -20,6 +20,8 @@ int main()
   }
 
   parse_token_final();
+
+  return 0;
 }
 
 /*

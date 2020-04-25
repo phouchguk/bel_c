@@ -18,6 +18,8 @@ char id(struct cell a, struct cell b)
 
 struct cell join(struct cell a, struct cell d)
 {
+  struct cell p;
+
   if (cell_i >= MAX_CELL) {
     printf("out of cell mem -- JOIN\n");
     exit(1);
@@ -26,7 +28,6 @@ struct cell join(struct cell a, struct cell d)
   the_cars[cell_i] = a;
   the_cdrs[cell_i] = d;
 
-  struct cell p;
   p.t = PAIR;
   p.val = cell_i++;
 

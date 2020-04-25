@@ -13,27 +13,27 @@ int sym_i = 0;
 struct cell get_sym(char *str)
 {
   int i, idx, j;
-
   struct cell c;
+
   c.t = SYM;
 
-  // find existing symbol position
+  /* find existing symbol position */
   for (i = 0; i < sym_i; i++) {
     idx = i;
 
     for (j = 0; sym[i] == str[j] && i < sym_i; j++, i++) {
       if (sym[i] == '\0') {
-        // match !
+        /* match ! */
         c.val = idx;
         return c;
       }
     }
 
-    // skip to next sym
+    /* skip to next sym */
     while (sym[++i] != '\0' && i < sym_i);
   }
 
-  // create new symbol
+  /* create new symbol */
   c.val = sym_i;
   while ((sym[sym_i++] = *str++) != '\0');
 
@@ -52,11 +52,11 @@ char *nom(struct cell c)
 
 void sym_init(void)
 {
-  // want nil and t first
+  /* want nil and t first */
   nil = get_sym("nil");
   t = get_sym("t");
 
-  // alphabetical after
+  /* alphabetical after */
   apply = get_sym("apply");
   o = get_sym("o");
 }
