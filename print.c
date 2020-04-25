@@ -8,6 +8,8 @@
 
 void pr(cell c)
 {
+  int first = 1;
+
   switch (c >> CELL_SHIFT) {
   case STREAM:
     printf("<stream>");
@@ -31,9 +33,24 @@ void pr(cell c)
 
   case PAIR:
     printf("(");
-    pr(car(c));
-    printf(" . ");
-    pr(cdr(c));
+
+    while (c) {
+      if (!first) {
+        printf(" ");
+      }
+
+      if (!pair(c)) {
+        printf(". ");
+        pr(c);
+        break;
+      }
+
+      pr(car(c));
+      c = cdr(c);
+
+      first = 0;
+    }
+
     printf(")");
     break;
   }

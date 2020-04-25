@@ -44,6 +44,7 @@ int is_delimiter(char c)
 void got_exp(cell exp)
 {
   pr(exp);
+  printf("\n\n");
 }
 
 char token[MAX_TOKEN];

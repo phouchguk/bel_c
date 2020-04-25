@@ -1,14 +1,15 @@
 #ifndef PAIR_H
 #define PAIR_H
 
-int id(cell a, cell b);
+int id(cell, cell);
+int pair(cell);
 
-cell join(cell a, cell d);
+cell join(cell, cell);
 
-cell car(cell p);
-cell cdr(cell p);
+cell car(cell);
+cell cdr(cell);
 
-cell xar(cell p, cell a);
-cell xdr(cell p, cell d);
+cell xar(cell, cell);
+cell xdr(cell, cell);
 
 #endif
