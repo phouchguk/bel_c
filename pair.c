@@ -39,6 +39,10 @@ cell join(cell a, cell d)
 
 cell car(cell p)
 {
+  if (p == 0) {
+    return 0;
+  }
+
   if (!pair(p)) {
     printf("can't CAR non-pair -- CAR\n");
     exit(1);
@@ -49,6 +53,10 @@ cell car(cell p)
 
 cell cdr(cell p)
 {
+  if (p == 0) {
+    return 0;
+  }
+
   if (!pair(p)) {
     printf("can't CAR non-pair -- CDR\n");
     exit(1);

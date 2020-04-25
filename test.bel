@@ -15,4 +15,4 @@
 ;(do (map [prc _ s] " \"'`,[\n(.\")],@ ")
 ;    (print rest s names newhist))
 
-\g
+(a b)

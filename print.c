@@ -6,11 +6,19 @@
 #include "print.h"
 #include "sym.h"
 
-void pr(struct cell c)
+void pr(cell c)
 {
-  switch (c.t) {
+  switch (c >> CELL_SHIFT) {
   case STREAM:
     printf("<stream>");
+    break;
+
+  case HEART:
+    printf("<broken-heart>");
+    break;
+
+  case NUM:
+    printf("<num:%u>", c | NUM << CELL_SHIFT);
     break;
 
   case SYM:
@@ -18,7 +26,7 @@ void pr(struct cell c)
     break;
 
   case CHAR:
-    printf("\\%c", c.val);
+    printf("\\%c", c | CHAR << CELL_SHIFT);
     break;
 
   case PAIR:

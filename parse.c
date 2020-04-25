@@ -4,6 +4,7 @@
 #include "type.h"
 #include "pair.h"
 #include "parse.h"
+#include "print.h"
 #include "sym.h"
 
 #define MAX_TOKEN 255
@@ -42,6 +43,7 @@ int is_delimiter(char c)
 
 void got_exp(cell exp)
 {
+  pr(exp);
 }
 
 char token[MAX_TOKEN];
@@ -87,7 +89,7 @@ int improper = 0;
 cell list_stack = 0;
 cell quote_stack = 0;
 char quote_next = '\0';
-const cell char_mask   = CHAR << CELL_SHIFT;
+const cell char_mask = CHAR << CELL_SHIFT;
 
 void push_ls(cell x)
 {
@@ -280,7 +282,7 @@ void parse_token(const char *str, const int start, const int end)
   switch (str[start]) {
   case '"':
     /* build list of chars onto atom (reverse, check for escapes) */
-    for (i = end - 1; i >= start; i--) {
+    for (i = end - 2; i > start; i--) {
       if (i > start && str[i - 1] == '\\') {
         switch (str[i]) {
           case 'a':
@@ -297,6 +299,10 @@ void parse_token(const char *str, const int start, const int end)
 
           case 'r':
             c = RETURN;
+            break;
+
+          case '"':
+            c = '"';
             break;
 
         default:
