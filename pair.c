@@ -11,7 +11,7 @@ struct cell the_cdrs[MAX_CELL];
 
 int cell_i = 0;
 
-char id(struct cell a, struct cell b)
+int id(struct cell a, struct cell b)
 {
   return a.t == b.t && a.val == b.val;
 }

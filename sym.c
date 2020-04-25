@@ -9,6 +9,12 @@
 
 char sym[MAX_SYM];
 int sym_i = 0;
+int uniq_i = 0;
+
+int uniq(void)
+{
+  return MAX_SYM + uniq_i++;
+}
 
 struct cell get_sym(char *str)
 {

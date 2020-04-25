@@ -7,32 +7,32 @@
 
 enum escape { BELL  = '\a', TAB = '\t', NEWLINE = '\n', RETURN = '\r' };
 
-char is_escape(char c)
+int is_escape(char c)
 {
   return c == BELL || c == TAB || c == NEWLINE || c == RETURN;
 }
 
-char is_whitespace(char c)
+int is_whitespace(char c)
 {
   return c < 33 || c > 126;
 }
 
-char is_valid(char c)
+int is_valid(char c)
 {
   return is_escape(c) || c > 31 || c < 127;
 }
 
-char is_quote(char c)
+int is_quote(char c)
 {
   return c == '\'' || c == '`' || c == ',';
 }
 
-char is_paren(char c)
+int is_paren(char c)
 {
   return c == '(' || c == ')' || c == '[' || c == ']';
 }
 
-char is_delimiter(char c)
+int is_delimiter(char c)
 {
   return is_whitespace(c) || is_paren(c) || is_quote(c);
 }
@@ -44,7 +44,7 @@ int token_i = 0;
 /* if expandable and needs expand, expand into an expand buffer and pass that along instead of token buffer */
 /* need to handle spaces in strings/|symbols| (leave escape chars until parse_string?) */
 
-char needs_expand(void) {
+int needs_expand(void) {
   int i = 0;
 
   while (1) {
@@ -61,7 +61,7 @@ char needs_expand(void) {
   }
 }
 
-char token_expandable(void) {
+int token_expandable(void) {
   if (token[1] == '\0' || token[2] == '\0') {
     /* needs to be at least 3 chars long */
     return 0;
@@ -77,8 +77,8 @@ char token_expandable(void) {
   }
 }
 
-char in_char = 0;
-char in_comma = 0;
+int in_char = 0;
+int in_comma = 0;
 
 void parse_token(char *str, int start, int end)
 {
@@ -117,8 +117,8 @@ char t_[] = "_";
 void expand_token(char *str, int start, int end)
 {
   int i, last;
-  char dot_or_bang = 0;
-  char has_colon = 0;
+  int dot_or_bang = 0;
+  int has_colon = 0;
 
   /* check for | */
   for (i = start; i < end; i++) {
@@ -220,8 +220,8 @@ void expand_token(char *str, int start, int end)
   parse_token(str, start, end);
 }
 
-char in_fn_shorthand = 0;
-char in_str = 0;
+int in_fn_shorthand = 0;
+int in_str = 0;
 
 void read_token(void)
 {
@@ -312,8 +312,8 @@ void parse_token_final(void) {
   printf("\n");
 }
 
-char in_comment = 0;
-char str_escape_quote = 0;
+int in_comment = 0;
+int str_escape_quote = 0;
 
 void parse_char(char c)
 {

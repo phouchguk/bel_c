@@ -1,6 +1,1 @@
-cat short.bel | ../tcc pair.c parse.c -run bel.c
-cat bel.bel | ../tcc pair.c parse.c -run bel.c
-../tcc pair.c parse.c print.c sym.c -run test.c
-
-gcc bel.c pair.c parse.c -o bel -Wall -Wpedantic -Wswitch -Werror
-gcc test.c pair.c print.c sym.c -o test -Wall -Wpedantic -Wswitch -Werror
+cat bel.bel | tcc pair.c parse.c sym.c -run bel.c -Wall -Werror -Wunsupported

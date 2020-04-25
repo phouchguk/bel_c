@@ -6,7 +6,7 @@ struct cell {
   int val;
 };
 
-char id(struct cell a, struct cell b);
+int id(struct cell a, struct cell b);
 
 struct cell join(struct cell a, struct cell d);
 
