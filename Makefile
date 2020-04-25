@@ -1,7 +1,7 @@
 cc=gcc
 CFLAGS=-std=c89 -pedantic-errors -O3 -Wall -Wpedantic -Wswitch -Werror
 bel_objs= bel.o pair.o parse.o sym.o
-test_objs= test.o pair.o print.o sym.o
+test_objs= test.o
 
 all : bel test
 
@@ -12,8 +12,6 @@ test : $(test_objs)
 	cc -o test $(test_objs)
 
 bel.o : type.h pair.h parse.h sym.h
-
-test.o : type.h pair.h print.h
 
 print.o : type.h pair.h sym.h
 
