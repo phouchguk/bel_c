@@ -1,19 +1,14 @@
 #ifndef PAIR_H
 #define PAIR_H
 
-struct cell {
-  char t;
-  int val;
-};
+int id(cell a, cell b);
 
-int id(struct cell a, struct cell b);
+cell join(cell a, cell d);
 
-struct cell join(struct cell a, struct cell d);
+cell car(cell p);
+cell cdr(cell p);
 
-struct cell car(struct cell p);
-struct cell cdr(struct cell p);
-
-struct cell xar(struct cell p, struct cell a);
-struct cell xdr(struct cell p, struct cell d);
+cell xar(cell p, cell a);
+cell xdr(cell p, cell d);
 
 #endif

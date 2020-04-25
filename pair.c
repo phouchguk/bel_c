@@ -6,20 +6,26 @@
 
 #define MAX_CELL 1024
 
-struct cell the_cars[MAX_CELL];
-struct cell the_cdrs[MAX_CELL];
+cell the_cars[MAX_CELL];
+cell the_cdrs[MAX_CELL];
 
 int cell_i = 0;
 
-int id(struct cell a, struct cell b)
+const cell val_mask  = ~0U >> TAG_BIT_SIZE;
+const cell pair_mask = PAIR << CELL_SHIFT;
+
+int id(cell a, cell b)
 {
-  return a.t == b.t && a.val == b.val;
+  return a == b;
 }
 
-struct cell join(struct cell a, struct cell d)
+int pair(cell x)
 {
-  struct cell p;
+  return x >> CELL_SHIFT == PAIR;
+}
 
+cell join(cell a, cell d)
+{
   if (cell_i >= MAX_CELL) {
     printf("out of cell mem -- JOIN\n");
     exit(1);
@@ -28,52 +34,49 @@ struct cell join(struct cell a, struct cell d)
   the_cars[cell_i] = a;
   the_cdrs[cell_i] = d;
 
-  p.t = PAIR;
-  p.val = cell_i++;
-
-  return p;
+  return cell_i++ | pair_mask;
 }
 
-struct cell car(struct cell p)
+cell car(cell p)
 {
-  if (p.t != PAIR) {
+  if (!pair(p)) {
     printf("can't CAR non-pair -- CAR\n");
     exit(1);
   }
 
-  return the_cars[p.val];
+  return the_cars[p & val_mask];
 }
 
-struct cell cdr(struct cell p)
+cell cdr(cell p)
 {
-  if (p.t != PAIR) {
+  if (!pair(p)) {
     printf("can't CAR non-pair -- CDR\n");
     exit(1);
   }
 
-  return the_cdrs[p.val];
+  return the_cdrs[p & val_mask];
 }
 
-struct cell xar(struct cell p, struct cell a)
+cell xar(cell p, cell a)
 {
-  if (p.t != PAIR) {
+  if (!pair(p)) {
     printf("can't XAR non-pair -- XAR\n");
     exit(1);
   }
 
-  the_cars[p.val] = a;
+  the_cars[p & val_mask] = a;
 
   return a;
 }
 
-struct cell xdr(struct cell p, struct cell d)
+cell xdr(cell p, cell d)
 {
-  if (p.t != PAIR) {
+  if (!pair(p)) {
     printf("can't XDR non-pair -- XDR\n");
     exit(1);
   }
 
-  the_cdrs[p.val] = d;
+  the_cdrs[p & val_mask] = d;
 
   return d;
 }

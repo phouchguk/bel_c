@@ -16,12 +16,9 @@ int uniq(void)
   return MAX_SYM + uniq_i++;
 }
 
-struct cell get_sym(char *str)
+int get_sym(char *str)
 {
   int i, idx, j;
-  struct cell c;
-
-  c.t = SYM;
 
   /* find existing symbol position */
   for (i = 0; i < sym_i; i++) {
@@ -30,8 +27,7 @@ struct cell get_sym(char *str)
     for (j = 0; sym[i] == str[j] && i < sym_i; j++, i++) {
       if (sym[i] == '\0') {
         /* match ! */
-        c.val = idx;
-        return c;
+        return idx;
       }
     }
 
@@ -40,20 +36,25 @@ struct cell get_sym(char *str)
   }
 
   /* create new symbol */
-  c.val = sym_i;
+  idx = sym_i;
   while ((sym[sym_i++] = *str++) != '\0');
 
-  return c;
+  return idx;
 }
 
-char *nom(struct cell c)
+int symbol(cell x)
 {
-  if (c.t != SYM) {
+  return x >> CELL_SHIFT == SYM;
+}
+
+char *nom(cell c)
+{
+  if (!symbol(c)) {
     printf("can't NOM non-sym -- NOM\n");
     exit(1);
   }
 
-  return sym + c.val;
+  return sym + c;
 }
 
 void sym_init(void)

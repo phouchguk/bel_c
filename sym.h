@@ -2,14 +2,14 @@
 #define SYM_H
 
 void sym_init(void);
-struct cell get_sym(char*);
-char *nom(struct cell);
+int get_sym(char*);
+char *nom(cell);
 
 /* global symbol defs */
-struct cell nil;
-struct cell t;
+cell nil;
+cell t;
 
-struct cell apply;
-struct cell o;
+cell apply;
+cell o;
 
 #endif
