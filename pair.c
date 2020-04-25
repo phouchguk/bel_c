@@ -5,7 +5,7 @@
 #include "pair.h"
 #include "print.h"
 
-#define MAX_CELL 1024
+#define MAX_CELL 40960
 
 cell the_cars[MAX_CELL];
 cell the_cdrs[MAX_CELL];

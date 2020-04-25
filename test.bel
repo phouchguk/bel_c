@@ -1,3 +1,10 @@
+(def map (f . ls))()
+  ;(if (no ls)       nil
+  ;    (some no ls)  nil
+  ;    (no (cdr ls)) (cons (f (car (car ls)))
+  ;                        (map f (cdr (car ls))))
+  ;                  (cons (apply f (map car ls))
+  ;                        (apply map f (map cdr ls)))))
 ;a!b
 ;c|isa!cont
 ;(id 2.x 3.x)
@@ -15,4 +22,4 @@
 ;(do (map [prc _ s] " \"'`,[\n(.\")],@ ")
 ;    (print rest s names newhist))
 
-(a b)
+;(a b)

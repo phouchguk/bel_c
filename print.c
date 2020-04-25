@@ -8,6 +8,7 @@
 
 void pr(cell c)
 {
+  char chr;
   int first = 1;
 
   switch (c >> CELL_SHIFT) {
@@ -28,7 +29,33 @@ void pr(cell c)
     break;
 
   case CHAR:
-    printf("\\%c", c | CHAR << CELL_SHIFT);
+    chr = c | CHAR << CELL_SHIFT;
+
+    switch (chr) {
+    case ' ':
+      printf("\\sp");
+      break;
+    case '\r':
+      printf("\\lf");
+      break;
+
+    case '\n':
+      printf("\\cr");
+      break;
+
+    case '\a':
+      printf("\\bel");
+      break;
+
+    case '\t':
+      printf("\\tab");
+      break;
+
+    default:
+      printf("\\%c", chr);
+      break;
+    }
+
     break;
 
   case PAIR:

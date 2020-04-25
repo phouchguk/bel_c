@@ -41,6 +41,8 @@ int is_delimiter(char c)
   return is_whitespace(c) || is_paren(c) || is_quote(c);
 }
 
+int expect_close = 0;
+
 void got_exp(cell exp)
 {
   pr(exp);
@@ -85,7 +87,6 @@ int token_expandable(void) {
 
 int in_char = 0;
 int in_comma = 0;
-int expect_close = 0;
 int improper = 0;
 cell list_stack = 0;
 cell quote_next = 0;
@@ -116,31 +117,35 @@ cell unqn(cell qn, cell atom)
 
 cell get_char(const char *str, const int start, const int len)
 {
+  int fr = start + 1;
+  int se = start + 2;
+  int th = start + 3;
+
   switch (len) {
   case 2:
-    return str[1] | char_mask;
+    return str[fr] | char_mask;
 
   case 3:
-    if (str[1] == 's' && str[2] == 'p') {
+    if (str[fr] == 's' && str[se] == 'p') {
       return ' ' | char_mask;
     }
 
-    if (str[1] == 'l' && str[2] == 'f') {
+    if (str[fr] == 'l' && str[se] == 'f') {
       return '\r' | char_mask;
     }
 
-    if (str[1] == 'c' && str[2] == 'r') {
+    if (str[fr] == 'c' && str[se] == 'r') {
       return '\n' | char_mask;
     }
 
     break;
 
   case 4:
-    if (str[1] == 's' && str[2] == 'e' && str[3] == 'l') {
+    if (str[fr] == 'b' && str[se] == 'e' && str[th] == 'l') {
       return '\a' | char_mask;
     }
 
-    if (str[1] == 't' && str[2] == 'a' && str[3] == 'b') {
+    if (str[fr] == 't' && str[se] == 'a' && str[th] == 'b') {
       return '\t' | char_mask;
     }
 
@@ -178,13 +183,17 @@ void parse_token(const char *str, const int start, const int end)
       quote_next = join(bquote, quote_next);
       return;
 
-    default:
+    case ',':
       quote_next = join(len == 1 ? comma : comma_at, quote_next);
       return;
+
+    default:
+      printf("bad quote -- PARSE_TOKEN\n");
+      exit(1);
     }
   }
 
-  if (str[start] == '(') {
+  if (str[start] == '(' && str[start + 1] == '\0') {
     if (expect_close) {
       printf("bad ( -- PARSE_TOKEN\n");
       exit(1);
@@ -198,7 +207,7 @@ void parse_token(const char *str, const int start, const int end)
     return;
   }
 
-  if (str[start] == '.') {
+  if (str[start] == '.' && str[start + 1] == '\0') {
     if (!list_stack || improper || expect_close) {
       printf("bad . -- PARSE_TOKEN\n");
       exit(1);
@@ -208,7 +217,7 @@ void parse_token(const char *str, const int start, const int end)
     return;
   }
 
-  if (str[start] == ')') {
+  if (str[start] == ')' && str[start + 1] == '\0') {
     if (!list_stack) {
       printf("bad ) -- PARSE_TOKEN\n");
       exit(1);
@@ -236,9 +245,9 @@ void parse_token(const char *str, const int start, const int end)
 
     if (expect_close) {
       /* make the list improper */
-      while (list) {
-        if (!cdr(cdr(list))) {
-          xdr(list, car(cdr(list)));
+      while (xs) {
+        if (!cdr(cdr(xs))) {
+          xdr(xs, car(cdr(xs)));
 
           improper = 0;
           expect_close = 0;
@@ -246,7 +255,7 @@ void parse_token(const char *str, const int start, const int end)
           break;
         }
 
-        list = cdr(list);
+        xs = cdr(xs);
       }
     }
 
