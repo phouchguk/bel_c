@@ -15,6 +15,16 @@ int cell_i = 0;
 const cell val_mask  = ~0U >> TAG_BIT_SIZE;
 const cell pair_mask = PAIR << CELL_SHIFT;
 
+int pkb(int n)
+{
+  return n * 4 * 2 / 1024;
+}
+
+void pair_report(void)
+{
+  printf("mem: %i/%i %i/%ikb\n", cell_i, MAX_CELL, pkb(cell_i), pkb(MAX_CELL));
+}
+
 int id(cell a, cell b)
 {
   return a == b;

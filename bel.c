@@ -18,6 +18,9 @@ int main()
 
   parse_token_final();
 
+  pair_report();
+  sym_report();
+
   return 0;
 }
 

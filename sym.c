@@ -5,11 +5,16 @@
 #include "pair.h"
 #include "sym.h"
 
-#define MAX_SYM 1024
+#define MAX_SYM 4096
 
 char sym[MAX_SYM];
 int sym_i = 0;
 int uniq_i = 0;
+
+void sym_report(void)
+{
+  printf("sym: %i/%ib\n", sym_i, MAX_SYM);
+}
 
 int uniq(void)
 {
@@ -37,7 +42,12 @@ int get_sym(char *str)
 
   /* create new symbol */
   idx = sym_i;
-  while ((sym[sym_i++] = *str++) != '\0');
+  while ((sym[sym_i++] = *str++) != '\0') {
+    if (sym_i == MAX_SYM) {
+      printf("out of sym mem -- GET_SYM\n");
+      exit(1);
+    }
+  };
 
   return idx;
 }
