@@ -158,8 +158,9 @@ void load_mem(void)
   cell_i += getc(dump) << 8;
   cell_i += getc(dump);
 
-
+  /*
   printf("reading to %i\n", cell_i);
+  */
 
   for (i = 0; i < cell_i * 4; i++) {
     car_chars[i] = getc(dump);
@@ -167,6 +168,9 @@ void load_mem(void)
   }
 
   fclose(dump);
+
+  pr(0 | pair_mask);
+  printf("\n");
 }
 
 int id(cell a, cell b)

@@ -12,6 +12,10 @@ int main()
 
   sym_init();
 
+  /*
+  load_mem();
+  */
+
   while ((c = getchar()) != EOF) {
     parse_char(c);
   }
@@ -21,7 +25,9 @@ int main()
   pair_report();
   sym_report();
 
+  /*
   dump_mem();
+  */
 
   return 0;
 }
