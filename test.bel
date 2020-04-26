@@ -1,1 +1,1 @@
-(do 'a 'b (if nil \t nil \y t 'one 'two) x)
+(do 'a 'b (set x 'one) (set y 'two) (if nil \t nil \y t x y) (set y 'three) x y)

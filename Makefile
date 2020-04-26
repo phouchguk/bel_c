@@ -13,7 +13,7 @@ test : $(test_objs)
 
 bel.o : env.h type.h pair.h parse.h sym.h
 
-continuation.o : type.h pair.h sym.h print.h eval.h
+continuation.o : env.h type.h pair.h sym.h print.h eval.h
 
 env.o : continuation.h pair.h sym.h type.h
 

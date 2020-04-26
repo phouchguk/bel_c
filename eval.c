@@ -86,5 +86,9 @@ cell eval(cell e, cell r, cell d, cell k)
     return evaluate_begin(cdr(e), r, d, k);
   }
 
+  if (op == set) {
+    return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);
+  }
+
   return 0;
 }

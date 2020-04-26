@@ -6,6 +6,7 @@
 #include "sym.h"
 #include "print.h"
 #include "continuation.h"
+#include "env.h"
 #include "eval.h"
 
 int make_lit3(cell a, cell b, cell c)
@@ -30,6 +31,12 @@ int make_if_cont(cell k, cell et, cell efx, cell r, cell d)
   return join(lit, join(cont, join(iff, join(k, join(et, join(efx, join(r, join(d, 0))))))));
 }
 
+int make_set_cont(cell k, cell var, cell r, cell d)
+{
+  /* (lit cont set k var r d) */
+  return join(lit, join(cont, join(set, join(k, join(var, join(r, join(d, 0)))))));
+}
+
 int make_next(cell k, cell val)
 {
   return make_lit3(next, k, val);
@@ -52,6 +59,11 @@ int evaluate_begin(cell ex, cell r, cell d, cell k)
 int evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
 {
   return eval(ec, r, d, make_if_cont(k, et, efx, r, d));
+}
+
+int evaluate_set(cell var, cell e, cell r, cell d, cell k)
+{
+  return eval(e, r, d, make_set_cont(k, var, r, d));
 }
 
 cell resume_begin(cell k, cell this, cell val)
@@ -104,6 +116,18 @@ cell resume_if(cell k, cell this, cell val)
   return evaluate_if(alt, car(cdr(efx)), cdr(cdr(efx)), r, d, k);
 }
 
+cell resume_set(cell k, cell this, cell val)
+{
+  cell var, r, d;
+
+  /* (var r d) */
+  var = car(this);
+  r = car(cdr(this));
+  d = car(cdr(cdr(this)));
+
+  return set_variable(var, val, r, d, k);
+}
+
 cell resume(cell this, cell val)
 {
   /* (<t> k ...) */
@@ -124,6 +148,10 @@ cell resume(cell this, cell val)
 
   if (t == begin) {
     return resume_begin(k, props, val);
+  }
+
+  if (t == set) {
+    return resume_set(k, props, val);
   }
 
   printf("unrecognised continuation -- RESUME\n");

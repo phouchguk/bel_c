@@ -24,6 +24,7 @@ cell lit;
 cell next;
 cell o;
 cell quote;
+cell set;
 cell unbound;
 
 #endif

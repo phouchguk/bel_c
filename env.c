@@ -91,6 +91,52 @@ cell lookup_variable_value(cell var, cell env)
   return unbound;
 }
 
+cell set_variable_value(cell var, cell val, cell env, int define)
+{
+  cell enc, frame, vals, vars;
+
+  while (env) {
+    frame = first_frame(env);
+    vals = frame_vals(frame);
+    vars = frame_vars(frame);
+
+    while (vars) {
+      if (car(vars) == var) {
+        xar(vals, val);
+        return val;
+      }
+
+      vals = cdr(vals);
+      vars = cdr(vars);
+    }
+
+    enc = enclosing_env(env);
+
+    if (!enc && define) {
+      /* define a new variable at root */
+      add_binding_to_frame(var, val, frame);
+      return val;
+    }
+
+    env = enc;
+  }
+
+  return unbound;
+}
+
+cell set_variable(cell var, cell val, cell r, cell d, cell k)
+{
+  cell existing;
+
+  existing = lookup_variable_value(var, d);
+
+  if (existing == unbound) {
+    return make_next(k, set_variable_value(var, val, r, 1));
+  }
+
+  return make_next(k, set_variable_value(var, val, d, 0));
+}
+
 cell lookup_variable(cell n, cell r, cell d, cell k)
 {
   cell val;
