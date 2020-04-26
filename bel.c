@@ -6,21 +6,31 @@
 #include "parse.h"
 #include "sym.h"
 
-int main()
+void load_dump()
+{
+  load_mem();
+}
+
+void load_stdin()
 {
   int c;
 
   sym_init();
-
-  /*
-  load_mem();
-  */
 
   while ((c = getchar()) != EOF) {
     parse_char(c);
   }
 
   parse_token_final();
+}
+
+int main()
+{
+  /*
+  load_dump();
+  */
+
+  load_stdin();
 
   pair_report();
   sym_report();
