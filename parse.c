@@ -45,8 +45,8 @@ int expect_close = 0;
 
 void got_exp(cell exp)
 {
+  exp = gc(exp);
   pr(exp);
-  printf("\n\n");
 }
 
 char token[MAX_TOKEN];

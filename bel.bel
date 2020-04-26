@@ -1,5 +1,5 @@
 ﻿; Bel in Bel. 9 October 2019, 9:14 GMT
-
+(do
 
 (def no (x)
   (id x nil))
@@ -1798,3 +1798,4 @@
     (if (id v eof)  nil
         (isa!tab v) (inst name (cddr v))
                     (err 'inst-nontable))))
+)

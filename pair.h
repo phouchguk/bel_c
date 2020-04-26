@@ -5,6 +5,7 @@ void pair_report(void);
 
 int id(cell, cell);
 int pair(cell);
+cell gc(cell);
 
 cell join(cell, cell);
 
