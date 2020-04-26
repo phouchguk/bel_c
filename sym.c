@@ -105,6 +105,7 @@ void sym_init(void)
   /* alphabetical after */
   apply = get_sym("apply");
   base = get_sym("base");
+  begin = get_sym("do");
   bquote = get_sym("bquote");
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");

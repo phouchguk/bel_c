@@ -18,6 +18,12 @@ int make_base_cont(void)
   return make_lit3(cont, base, 0);
 }
 
+int make_begin_cont(cell k, cell ex, cell r, cell d)
+{
+  /* (lit cont do k ex r d) */
+  return join(lit, join(cont, join(begin, join(k, join(ex, join(r, join(d, 0)))))));
+}
+
 int make_if_cont(cell k, cell et, cell efx, cell r, cell d)
 {
   /* (lit cont if k et efx r d) */
@@ -29,26 +35,56 @@ int make_next(cell k, cell val)
   return make_lit3(next, k, val);
 }
 
+int evaluate_begin(cell ex, cell r, cell d, cell k)
+{
+  if (!pair(ex)) {
+    return make_next(k, 0);
+  }
+
+  if (pair(cdr(ex))) {
+    return eval(car(ex), r, d, make_begin_cont(k, cdr(ex), r, d));
+  }
+
+  /* last exp */
+  return eval(car(ex), r, d, k);
+}
+
 int evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
 {
   return eval(ec, r, d, make_if_cont(k, et, efx, r, d));
+}
+
+cell resume_begin(cell k, cell this, cell val)
+{
+  cell ex, r, d;
+
+  /* (ex r d) */
+  ex = car(this);
+  r = car(cdr(this));
+  d = car(cdr(cdr(this)));
+
+  printf("do ignored: ");
+  pr(val);
+  printf("\n");
+
+  return evaluate_begin(ex, r, d, k);
 }
 
 cell resume_if(cell k, cell this, cell val)
 {
   cell alt, et, efx, r, d;
 
-  /* (if k et efx r d) */
-  r = car(cdr(cdr(cdr(this))));
-  d = car(cdr(cdr(cdr(cdr(this)))));
+  /* (et efx r d) */
+  r = car(cdr(cdr(this)));
+  d = car(cdr(cdr(cdr(this))));
 
   if (val) {
     /* consequent */
-    et = car(cdr(cdr(this)));
+    et = car(this);
     return eval(et, r, d, k);
   }
 
-  efx = car(cdr(cdr(cdr(this))));
+  efx = car(cdr(this));
 
   if (!efx) {
     /* no alternative(s) specified, return nil */
@@ -68,8 +104,10 @@ cell resume_if(cell k, cell this, cell val)
 
 cell resume(cell this, cell val)
 {
+  /* (<t> k ...) */
   cell k = car(cdr(this));
   cell t = car(this);
+  cell props = cdr(cdr(this));
 
   if (t == base) {
     pr(val);
@@ -79,7 +117,11 @@ cell resume(cell this, cell val)
   }
 
   if (t == iff) {
-    return resume_if(k, this, val);
+    return resume_if(k, props, val);
+  }
+
+  if (t == begin) {
+    return resume_begin(k, props, val);
   }
 
   printf("unrecognised continuation -- RESUME\n");

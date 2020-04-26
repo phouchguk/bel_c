@@ -14,6 +14,7 @@ cell t;
 
 cell apply;
 cell base;
+cell begin;
 cell bquote;
 cell comma;
 cell comma_at;
