@@ -1,6 +1,8 @@
 #ifndef SYM_H
 #define SYM_H
 
+void dump_sym(FILE *f);
+void load_sym(FILE *f);
 void sym_report(void);
 void sym_init(void);
 int get_sym(char*);

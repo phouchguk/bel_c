@@ -11,6 +11,35 @@ char sym[MAX_SYM];
 int sym_i = 0;
 int uniq_i = 0;
 
+void dump_sym(FILE *f)
+{
+  int i;
+
+  putc(sym_i >> 24, f);
+  putc(sym_i >> 16, f);
+  putc(sym_i >> 8, f);
+  putc(sym_i, f);
+
+  for (i = 0; i < sym_i; i++) {
+    putc(sym[i], f);
+  }
+}
+
+void load_sym(FILE *f)
+{
+  int i;
+
+  sym_i = 0;
+  sym_i += getc(f) << 24;
+  sym_i += getc(f) << 16;
+  sym_i += getc(f) << 8;
+  sym_i += getc(f);
+
+  for (i = 0; i < sym_i; i++) {
+    sym[i] = getc(f);
+  }
+}
+
 void sym_report(void)
 {
   printf("sym: %i/%ib\n", sym_i, MAX_SYM);

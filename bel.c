@@ -21,6 +21,8 @@ int main()
   pair_report();
   sym_report();
 
+  dump_mem();
+
   return 0;
 }
 

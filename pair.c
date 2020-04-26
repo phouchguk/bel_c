@@ -4,6 +4,7 @@
 #include "type.h"
 #include "pair.h"
 #include "print.h"
+#include "sym.h"
 
 #define MAX_CELL 40960
 
@@ -103,6 +104,69 @@ cell gc(cell x)
   printf("gc complete %i -> %i (max %i)\n", old_use, cell_i, MAX_CELL);
 
   return new_x;
+}
+
+void dump_mem(void)
+{
+  int i;
+  FILE *dump;
+
+  char *car_chars = (char*)the_cars;
+  char *cdr_chars = (char*)the_cdrs;
+
+  dump = fopen("mem.dump", "w");
+
+  if (!dump) {
+    printf("can't open file -- DUMP_MEM\n");
+    exit(1);
+  }
+
+  dump_sym(dump);
+
+  putc(cell_i >> 24, dump);
+  putc(cell_i >> 16, dump);
+  putc(cell_i >> 8, dump);
+  putc(cell_i, dump);
+
+  for (i = 0; i < cell_i * 4; i++) {
+    putc(car_chars[i], dump);
+    putc(cdr_chars[i], dump);
+  }
+
+  fclose(dump);
+}
+
+void load_mem(void)
+{
+  int i;
+  FILE *dump;
+  char *car_chars = (char*)the_cars;
+  char *cdr_chars = (char*)the_cdrs;
+
+  dump = fopen("mem.dump", "r");
+
+  if (!dump) {
+    printf("can't open file -- LOAD_MEM\n");
+    exit(1);
+  }
+
+  load_sym(dump);
+
+  cell_i = 0;
+  cell_i += getc(dump) << 24;
+  cell_i += getc(dump) << 16;
+  cell_i += getc(dump) << 8;
+  cell_i += getc(dump);
+
+
+  printf("reading to %i\n", cell_i);
+
+  for (i = 0; i < cell_i * 4; i++) {
+    car_chars[i] = getc(dump);
+    cdr_chars[i] = getc(dump);
+  }
+
+  fclose(dump);
 }
 
 int id(cell a, cell b)

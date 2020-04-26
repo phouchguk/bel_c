@@ -17,7 +17,7 @@ print.o : type.h pair.h sym.h
 
 sym.o : type.h pair.h
 
-pair.o : type.h
+pair.o : type.h sym.h
 
 .PHONY : clean
 clean :
