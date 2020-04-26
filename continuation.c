@@ -63,9 +63,11 @@ cell resume_begin(cell k, cell this, cell val)
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
 
+  /*
   printf("do ignored: ");
   pr(val);
   printf("\n");
+  */
 
   return evaluate_begin(ex, r, d, k);
 }

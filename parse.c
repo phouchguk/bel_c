@@ -8,6 +8,7 @@
 #include "sym.h"
 #include "eval.h"
 #include "continuation.h"
+#include "env.h"
 
 #define MAX_TOKEN 255
 
@@ -64,7 +65,7 @@ void got_exp(cell exp)
   pr(exp);
   printf("\n");
 
-  n = eval(exp, 0, 0, make_base_cont());
+  n = eval(exp, get_globe(), get_dyn(), make_base_cont());
   pr(n);
   printf("\n");
 

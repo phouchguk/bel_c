@@ -5,6 +5,7 @@
 #include "pair.h"
 #include "parse.h"
 #include "sym.h"
+#include "env.h"
 
 void load_dump()
 {
@@ -16,6 +17,7 @@ void load_stdin()
   int c;
 
   sym_init();
+  setup_environment();
 
   while ((c = getchar()) != EOF) {
     parse_char(c);

@@ -115,4 +115,5 @@ void sym_init(void)
   next = get_sym("next");
   o = get_sym("o");
   quote = get_sym("quote");
+  unbound = get_sym("unbound");
 }

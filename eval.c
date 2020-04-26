@@ -5,6 +5,7 @@
 #include "pair.h"
 #include "sym.h"
 #include "continuation.h"
+#include "env.h"
 #include "eval.h"
 
 /*
@@ -68,8 +69,7 @@ cell eval(cell e, cell r, cell d, cell k)
   }
 
   if (atom(e)) {
-    /* evaluate_variable */
-    return 0;
+    return lookup_variable(e, r, d, k);
   }
 
   op = car(e);
