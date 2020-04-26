@@ -18,6 +18,7 @@ cell bquote;
 cell comma;
 cell comma_at;
 cell cont;
+cell iff;
 cell lit;
 cell next;
 cell o;

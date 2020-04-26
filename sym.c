@@ -109,6 +109,7 @@ void sym_init(void)
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");
   cont = get_sym("cont");
+  iff = get_sym("if");
   lit = get_sym("lit");
   next = get_sym("next");
   o = get_sym("o");

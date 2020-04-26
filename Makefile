@@ -21,9 +21,9 @@ pair.o : type.h sym.h
 
 parse.o : type.h pair.h print.h sym.h eval.h
 
-continuation.o : type.h pair.h sym.h print.h
+continuation.o : type.h pair.h sym.h print.h eval.h
 
-eval.o : type.h
+eval.o : type.h continuation.h pair.h sym.h
 
 .PHONY : clean
 clean :
