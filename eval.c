@@ -74,6 +74,10 @@ cell eval(cell e, cell r, cell d, cell k)
 
   op = car(e);
 
+  if (op == quote) {
+    return evaluate_quote(car(cdr(e)), k);
+  }
+
   if (op == iff) {
     return evaluate_if(car(cdr(e)), car(cdr(cdr(e))), cdr(cdr(cdr(e))), r, d, k);
   }
