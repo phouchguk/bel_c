@@ -25,7 +25,7 @@ int gc_i;
 
 const cell val_mask  = ~0U >> TAG_BIT_SIZE;
 const cell pair_mask = PAIR << CELL_SHIFT;
-const cell heart_mask = HEART << CELL_SHIFT;
+const cell the_broken_heart = HEART << CELL_SHIFT;
 
 int pkb(int n)
 {
@@ -36,8 +36,6 @@ void pair_report(void)
 {
   printf("mem: %i/%i %i/%ikb\n", cell_i, MAX_CELL, pkb(cell_i), pkb(MAX_CELL));
 }
-
-cell the_broken_heart = heart_mask;
 
 cell gc_cell(cell x)
 {
