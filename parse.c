@@ -6,6 +6,8 @@
 #include "parse.h"
 #include "print.h"
 #include "sym.h"
+#include "eval.h"
+#include "continuation.h"
 
 #define MAX_TOKEN 255
 
@@ -43,10 +45,32 @@ int is_delimiter(char c)
 
 int expect_close = 0;
 
+cell next_k(cell n)
+{
+  return cdr(cdr(car(cdr(cdr(n)))));
+}
+
+cell next_val(cell n)
+{
+  return car(cdr(cdr(cdr(n))));
+}
+
 void got_exp(cell exp)
 {
-  exp = gc(exp);
+  cell n;
+
+  /*exp = gc(exp);*/
+
   pr(exp);
+  printf("\n");
+
+  n = eval(exp, 0, 0, make_base_cont());
+  pr(n);
+  printf("\n");
+
+  while (n) {
+    n = resume(next_k(n), next_val(n));
+  }
 }
 
 char token[MAX_TOKEN];

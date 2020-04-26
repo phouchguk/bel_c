@@ -104,9 +104,13 @@ void sym_init(void)
 
   /* alphabetical after */
   apply = get_sym("apply");
+  base = get_sym("base");
   bquote = get_sym("bquote");
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");
-  quote = get_sym("quote");
+  cont = get_sym("cont");
+  lit = get_sym("lit");
+  next = get_sym("next");
   o = get_sym("o");
+  quote = get_sym("quote");
 }

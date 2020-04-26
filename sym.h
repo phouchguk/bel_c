@@ -13,10 +13,14 @@ cell nil;
 cell t;
 
 cell apply;
+cell base;
 cell bquote;
 cell comma;
 cell comma_at;
-cell quote;
+cell cont;
+cell lit;
+cell next;
 cell o;
+cell quote;
 
 #endif
