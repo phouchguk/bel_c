@@ -9,7 +9,7 @@
 
 char sym[MAX_SYM];
 int sym_i = 0;
-int uniq_i = 0;
+int uvar_i = MAX_SYM;
 
 void dump_sym(FILE *f)
 {
@@ -45,9 +45,9 @@ void sym_report(void)
   printf("sym: %i/%ib\n", sym_i, MAX_SYM);
 }
 
-int uniq(void)
+int get_uvar(void)
 {
-  return MAX_SYM + uniq_i++;
+  return uvar_i++;
 }
 
 int get_sym(char *str)
@@ -96,6 +96,15 @@ char *nom(cell c)
   return sym + c;
 }
 
+void print_sym(cell c)
+{
+  if (c >= MAX_SYM) {
+    printf("_g%i", c - MAX_SYM);
+  } else {
+    printf("%s", nom(c));
+  }
+}
+
 void sym_init(void)
 {
   /* want nil and t first - c code presumes sym nil is 0 */
@@ -111,6 +120,7 @@ void sym_init(void)
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");
   cont = get_sym("cont");
+  dyn = get_sym("dyn");
   iff = get_sym("if");
   lambda = get_sym("fn");
   lit = get_sym("lit");
@@ -121,4 +131,6 @@ void sym_init(void)
   quote = get_sym("quote");
   set = get_sym("set");
   unbound = get_sym("*unbound*");
+  uvar = get_sym("uvar");
+  where = get_sym("where");
 }

@@ -98,11 +98,23 @@ cell eval(cell e, cell r, cell d, cell k)
     return evaluate_if(car(cdr(e)), car(cdr(cdr(e))), cdr(cdr(cdr(e))), r, d, k);
   }
 
+  if (op == dyn) {
+    return make_next(k, 0);
+  }
+
+  if (op == uvar) {
+    return make_next(k, get_uvar());
+  }
+
+  if (op == where) {
+    return make_next(k, 0); /*evaluate_where(car(cdr(e)), r, d, k);*/
+  }
+
+  /* looking at the bel source I don't think I actually need begin, set, lambda or macro - they're just macros */
   if (op == set) {
     return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);
   }
 
-  /* looking at the bel source I don't think I actually need begin, lambda or macro - they're just macros */
   if (op == begin) {
     return evaluate_begin(cdr(e), r, d, k);
   }
@@ -114,6 +126,7 @@ cell eval(cell e, cell r, cell d, cell k)
   if (op == macro) {
     return evaluate_macro(car(cdr(e)), cdr(cdr(e)), r, k);
   }
+  /* only needed til we can load binary dump */
 
   printf("ERR don't know how to eval %i, %i '", op, macro);
   pr(op);

@@ -25,7 +25,8 @@ void pr(cell c)
     break;
 
   case SYM:
-    printf("%s", nom(c));
+    print_sym(c);
+
     break;
 
   case CHAR:

@@ -6,7 +6,9 @@ void load_sym(FILE *f);
 void sym_report(void);
 void sym_init(void);
 int get_sym(char*);
+int get_uvar(void);
 char *nom(cell);
+void print_sym(cell c);
 
 /* global symbol defs */
 cell nil;
@@ -20,6 +22,7 @@ cell clo;
 cell comma;
 cell comma_at;
 cell cont;
+cell dyn;
 cell iff;
 cell lambda;
 cell lit;
@@ -30,5 +33,7 @@ cell o;
 cell quote;
 cell set;
 cell unbound;
+cell uvar;
+cell where;
 
 #endif
