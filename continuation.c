@@ -26,10 +26,16 @@ cell make_where_cont(cell k)
   return join(lit, join(cont, join(where, join(k, 0))));
 }
 
+cell make_cont4(cell t, cell k, cell a, cell b, cell c)
+{
+  /* (lit cont t k a b c) */
+  return join(lit, join(cont, join(t, join(k, join(a, join(b, join(c, 0)))))));
+}
+
 cell make_begin_cont(cell k, cell ex, cell r, cell d)
 {
   /* (lit cont do k ex r d) */
-  return join(lit, join(cont, join(begin, join(k, join(ex, join(r, join(d, 0)))))));
+  return make_cont4(begin, k, ex, r, d);
 }
 
 cell make_if_cont(cell k, cell et, cell efx, cell r, cell d)
@@ -41,7 +47,31 @@ cell make_if_cont(cell k, cell et, cell efx, cell r, cell d)
 cell make_set_cont(cell k, cell var, cell r, cell d)
 {
   /* (lit cont set k var r d) */
-  return join(lit, join(cont, join(set, join(k, join(var, join(r, join(d, 0)))))));
+  return make_cont4(set, k, var, r, d);
+}
+
+cell make_evfn_cont(cell k, cell args, cell r, cell d)
+{
+  /* (lit cont evfn k args r d) */
+  return make_cont4(evfn, k, args, r, d);
+}
+
+cell make_apply_cont(cell k, cell op)
+{
+  /* (lit cont apply k op) */
+  return join(lit, join(cont, join(apply, join(k, join(op, 0)))));
+}
+
+cell make_gather_cont(cell k, cell arg)
+{
+  /* (lit cont gather k arg) */
+  return join(lit, join(cont, join(gather, join(k, join(arg, 0)))));
+}
+
+cell make_argument_cont(cell k, cell args, cell r, cell d)
+{
+  /* (lit cont evfn k args r d) */
+  return make_cont4(argument, k, args, r, d);
 }
 
 cell make_next(cell k, cell val)
@@ -76,6 +106,11 @@ cell evaluate_where(cell e, cell r, cell d, cell k)
 cell evaluate_set(cell var, cell e, cell r, cell d, cell k)
 {
   return eval(e, r, d, make_set_cont(k, var, r, d));
+}
+
+cell evaluate_application(cell op, cell args, cell r, cell d, cell k)
+{
+  return eval(op, r, d, make_evfn_cont(k, args, r, d));
 }
 
 cell resume_begin(cell k, cell this, cell val)
@@ -140,6 +175,84 @@ cell resume_set(cell k, cell this, cell val)
   return set_variable(var, val, r, d, k);
 }
 
+cell evaluate_arguments(cell args, cell r, cell d, cell k)
+{
+  if (pair(args)) {
+    return eval(car(args), r, d, make_argument_cont(k, cdr(args), r, d));
+  }
+
+  /* no more arguments */
+  return make_next(k, 0);
+}
+
+cell resume_evfn(cell k, cell this, cell op)
+{
+  cell args, r, d;
+
+  printf("resume evfn\n");
+
+  args = car(this);
+  r = car(cdr(this));
+  d = car(cdr(cdr(this)));
+
+  /* is it macro, is it apply ?? presume not for now */
+  return evaluate_arguments(args, r, d, make_apply_cont(k, op));
+}
+
+cell resume_argument(cell k, cell this, cell arg)
+{
+  cell remaining, r, d;
+
+  printf("resume argument\n");
+
+  remaining = car(this);
+  r = car(cdr(this));
+  d = car(cdr(cdr(this)));
+
+  return evaluate_arguments(remaining, r, d, make_gather_cont(k, arg));
+}
+
+cell resume_gather(cell k, cell this, cell args)
+{
+  cell arg = car(this);
+
+  printf("resume gather\n");
+  pr(k);
+
+  /* strip '(lit cont' from 'k' */
+  return resume(cdr(cdr(k)), join(arg, args));
+}
+
+cell apply_prim(cell k, cell prim, cell args)
+{
+  printf("apply prim\n");
+  /* only cdr for now */
+  pr(cdr(car(args)));
+  printf("\n");
+
+  return make_next(k, cdr(car(args)));
+}
+
+cell resume_apply(cell k, cell this, cell args)
+{
+  /* might be apply ??
+   * prim or clo
+   * only handling prim for now
+   */
+
+  cell f = car(this);
+  cell t = car(cdr(f));
+
+  printf("resume apply\n");
+
+  if (t == prim) {
+    return apply_prim(k, car(cdr(cdr(f))), args);
+  }
+
+  printf("can't apply -- RESUME_APPLY\n");
+  exit(1);
+}
+
 cell resume_where(cell k)
 {
   cell w = get_where();
@@ -149,7 +262,9 @@ cell resume_where(cell k)
     exit(1);
   }
 
-  return w;
+  pr(w);
+
+  return make_next(k, w);
 }
 
 cell resume(cell this, cell val)
@@ -185,6 +300,22 @@ cell resume(cell this, cell val)
     return resume_set(k, props, val);
   }
 
-  printf("unrecognised continuation -- RESUME\n");
+  if (t == evfn) {
+    return resume_evfn(k, props, val);
+  }
+
+  if (t == argument) {
+    return resume_argument(k, props, val);
+  }
+
+  if (t == apply) {
+    return resume_apply(k, props, val);
+  }
+
+  if (t == gather) {
+    return resume_gather(k, props, val);
+  }
+
+  printf("unrecognised continuation '%s' -- RESUME\n", nom(t));
   exit(1);
 }

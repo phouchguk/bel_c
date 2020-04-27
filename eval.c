@@ -130,11 +130,7 @@ cell eval(cell e, cell r, cell d, cell k)
   if (op == macro) {
     return evaluate_macro(car(cdr(e)), cdr(cdr(e)), r, k);
   }
-  /* only needed til we can load binary dump */
+  /* ^ only needed til we can load binary dump */
 
-  printf("ERR don't know how to eval %i, %i '", op, macro);
-  pr(op);
-  pr(op);
-  printf("' -- EVAL\n");
-  exit(1);
+  return evaluate_application(op, cdr(e), r, d, k);
 }

@@ -48,6 +48,7 @@ int expect_close = 0;
 
 cell next_k(cell n)
 {
+  /* (lit next (lit cont t ... */
   return cdr(cdr(car(cdr(cdr(n)))));
 }
 

@@ -114,6 +114,7 @@ void sym_init(void)
   /* alphabetical after */
   a = get_sym("a");
   apply = get_sym("apply");
+  argument = get_sym("argument");
   base = get_sym("base");
   begin = get_sym("do");
   bquote = get_sym("bquote");
@@ -123,6 +124,8 @@ void sym_init(void)
   cont = get_sym("cont");
   d = get_sym("d");
   dyn = get_sym("dyn");
+  evfn = get_sym("evfn");
+  gather = get_sym("gather");
   iff = get_sym("if");
   lambda = get_sym("fn");
   lit = get_sym("lit");
@@ -130,6 +133,7 @@ void sym_init(void)
   macro = get_sym("macro");
   next = get_sym("next");
   o = get_sym("o");
+  prim = get_sym("prim");
   quote = get_sym("quote");
   set = get_sym("set");
   unbound = get_sym("*unbound*");
