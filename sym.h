@@ -14,6 +14,7 @@ void print_sym(cell c);
 cell nil;
 cell t;
 
+cell a;
 cell apply;
 cell base;
 cell begin;
@@ -22,6 +23,7 @@ cell clo;
 cell comma;
 cell comma_at;
 cell cont;
+cell d;
 cell dyn;
 cell iff;
 cell lambda;

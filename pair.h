@@ -17,4 +17,7 @@ cell cdr(cell);
 cell xar(cell, cell);
 cell xdr(cell, cell);
 
+void reset_loc(void);
+cell get_where(void);
+
 #endif

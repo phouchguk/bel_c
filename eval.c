@@ -107,16 +107,20 @@ cell eval(cell e, cell r, cell d, cell k)
   }
 
   if (op == where) {
-    return make_next(k, 0); /*evaluate_where(car(cdr(e)), r, d, k);*/
+    return evaluate_where(car(cdr(e)), r, d, k);
   }
 
   /* looking at the bel source I don't think I actually need begin, set, lambda or macro - they're just macros */
   if (op == set) {
-    return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);
+    return make_next(k, 0);
+    /* no special set, this is a simple macro calling where */
+    /*return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);*/
   }
 
   if (op == begin) {
-    return evaluate_begin(cdr(e), r, d, k);
+    return make_next(k, 0);
+    /* no special 'do', simple macro transformation into fns */
+    /*return evaluate_begin(cdr(e), r, d, k);*/
   }
 
   if (op == lambda) {

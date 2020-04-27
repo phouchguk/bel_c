@@ -20,6 +20,8 @@ cell *the_cdrs = cdrs_a;
 cell *new_cars;
 cell *new_cdrs;
 
+cell loc, loc_cell;
+
 int cell_i = 0;
 int gc_i;
 
@@ -176,6 +178,21 @@ int id(cell a, cell b)
   return a == b;
 }
 
+void reset_loc(void)
+{
+  loc = 0;
+  loc_cell = 0;
+}
+
+cell get_where(void)
+{
+  if (loc == 0) {
+    return 0;
+  } else {
+    return join(loc_cell, join(loc, 0));
+  }
+}
+
 int pair(cell x)
 {
   return x >> CELL_SHIFT == PAIR;
@@ -212,6 +229,9 @@ cell car(cell p)
     exit(1);
   }
 
+  loc = a;
+  loc_cell = p;
+
   return the_cars[p & val_mask];
 }
 
@@ -225,6 +245,9 @@ cell cdr(cell p)
     printf("can't CDR non-pair -- CDR\n");
     exit(1);
   }
+
+  loc = d;
+  loc_cell = p;
 
   return the_cdrs[p & val_mask];
 }

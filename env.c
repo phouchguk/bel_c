@@ -168,6 +168,7 @@ cell get_dyn(void)
 
 void setup_environment(void)
 {
-  globe = extend_env(join(get_sym("x"), 0), join(get_sym("forty-two"), 0), the_empty_env);
-  dyn = extend_env(join(get_sym("x"), 0), join(get_sym("ninety-nine"), 0), the_empty_env);
+  cell x = join(a, join(get_sym("b"), join(get_sym("c"), 0)));
+  globe = extend_env(join(get_sym("x"), 0), join(x, 0), the_empty_env);
+  dyn = extend_env(join(get_sym("y"), 0), join(get_sym("ninety-nine"), 0), the_empty_env);
 }

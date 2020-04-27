@@ -9,40 +9,47 @@
 #include "env.h"
 #include "eval.h"
 
-int make_lit3(cell a, cell b, cell c)
+cell make_lit3(cell a, cell b, cell c)
 {
   return join(lit, join(a, join(b, join(c, 0))));
 }
 
-int make_base_cont(void)
+cell make_base_cont(void)
 {
+  /* (lit cont base nil) */
   return make_lit3(cont, base, 0);
 }
 
-int make_begin_cont(cell k, cell ex, cell r, cell d)
+cell make_where_cont(cell k)
+{
+  /* (lit cont where k) */
+  return join(lit, join(cont, join(where, join(k, 0))));
+}
+
+cell make_begin_cont(cell k, cell ex, cell r, cell d)
 {
   /* (lit cont do k ex r d) */
   return join(lit, join(cont, join(begin, join(k, join(ex, join(r, join(d, 0)))))));
 }
 
-int make_if_cont(cell k, cell et, cell efx, cell r, cell d)
+cell make_if_cont(cell k, cell et, cell efx, cell r, cell d)
 {
   /* (lit cont if k et efx r d) */
   return join(lit, join(cont, join(iff, join(k, join(et, join(efx, join(r, join(d, 0))))))));
 }
 
-int make_set_cont(cell k, cell var, cell r, cell d)
+cell make_set_cont(cell k, cell var, cell r, cell d)
 {
   /* (lit cont set k var r d) */
   return join(lit, join(cont, join(set, join(k, join(var, join(r, join(d, 0)))))));
 }
 
-int make_next(cell k, cell val)
+cell make_next(cell k, cell val)
 {
   return make_lit3(next, k, val);
 }
 
-int evaluate_begin(cell ex, cell r, cell d, cell k)
+cell evaluate_begin(cell ex, cell r, cell d, cell k)
 {
   if (!pair(ex)) {
     return make_next(k, 0);
@@ -56,12 +63,17 @@ int evaluate_begin(cell ex, cell r, cell d, cell k)
   return eval(car(ex), r, d, k);
 }
 
-int evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
+cell evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
 {
   return eval(ec, r, d, make_if_cont(k, et, efx, r, d));
 }
 
-int evaluate_set(cell var, cell e, cell r, cell d, cell k)
+cell evaluate_where(cell e, cell r, cell d, cell k)
+{
+  return eval(e, r, d, make_where_cont(k));
+}
+
+cell evaluate_set(cell var, cell e, cell r, cell d, cell k)
 {
   return eval(e, r, d, make_set_cont(k, var, r, d));
 }
@@ -128,12 +140,23 @@ cell resume_set(cell k, cell this, cell val)
   return set_variable(var, val, r, d, k);
 }
 
+cell resume_where(cell k)
+{
+  cell w = get_where();
+
+  if (!w) {
+    printf("bad where -- RESUME_WHERE");
+    exit(1);
+  }
+
+  return w;
+}
+
 cell resume(cell this, cell val)
 {
   /* (<t> k ...) */
-  cell k = car(cdr(this));
+  cell k, props;
   cell t = car(this);
-  cell props = cdr(cdr(this));
 
   if (t == base) {
     pr(val);
@@ -141,6 +164,14 @@ cell resume(cell this, cell val)
 
     return 0; /* should return a next, but base stops execution */
   }
+
+  k = car(cdr(this));
+
+  if (t == where) {
+    return resume_where(k);
+  }
+
+  props = cdr(cdr(this));
 
   if (t == iff) {
     return resume_if(k, props, val);

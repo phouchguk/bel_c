@@ -112,6 +112,7 @@ void sym_init(void)
   t = get_sym("t");
 
   /* alphabetical after */
+  a = get_sym("a");
   apply = get_sym("apply");
   base = get_sym("base");
   begin = get_sym("do");
@@ -120,6 +121,7 @@ void sym_init(void)
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");
   cont = get_sym("cont");
+  d = get_sym("d");
   dyn = get_sym("dyn");
   iff = get_sym("if");
   lambda = get_sym("fn");
