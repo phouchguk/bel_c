@@ -59,14 +59,14 @@ int get_sym(char *str)
     idx = i;
 
     for (j = 0; sym[i] == str[j] && i < sym_i; j++, i++) {
-      if (sym[i] == '\0') {
+      if (str[j] == '\0' && sym[i] == '\0') {
         /* match ! */
         return idx;
       }
     }
 
-    /* skip to next sym */
-    while (sym[++i] != '\0' && i < sym_i);
+    /* skip to next sym if we haven't already scanned to the end of a word (mac/macro) */
+    while (sym[i] != '\0' && sym[++i] != '\0' && i < sym_i);
   }
 
   /* create new symbol */
@@ -107,14 +107,18 @@ void sym_init(void)
   base = get_sym("base");
   begin = get_sym("do");
   bquote = get_sym("bquote");
+  clo = get_sym("clo");
   comma = get_sym("comma");
   comma_at = get_sym("comma_at");
   cont = get_sym("cont");
   iff = get_sym("if");
+  lambda = get_sym("fn");
   lit = get_sym("lit");
+  mac = get_sym("mac");
+  macro = get_sym("macro");
   next = get_sym("next");
   o = get_sym("o");
   quote = get_sym("quote");
   set = get_sym("set");
-  unbound = get_sym("unbound");
+  unbound = get_sym("*unbound*");
 }
