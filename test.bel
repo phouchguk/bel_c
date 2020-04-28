@@ -8,3 +8,6 @@
 (where (car x))
 (where (car (cdr x)))
 (where x)
+(join)
+(join 'a)
+(join 'a 'b)

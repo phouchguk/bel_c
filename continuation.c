@@ -221,6 +221,14 @@ cell apply_prim(cell k, cell prim, cell args)
 {
   cell val = 0;
 
+  if (prim == s_join) {
+    if (args) {
+      val = join(car(args), cdr(args) ? car(cdr(args)) : 0);
+    } else {
+      val = join(0, 0);
+    }
+  }
+
   if (prim == s_car) {
     val = bel_car(car(args));
   }

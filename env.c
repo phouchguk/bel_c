@@ -168,11 +168,30 @@ cell get_dyn(void)
   return dyn;
 }
 
+cell make_prim(cell s)
+{
+  return join(lit, join(prim, join(s, 0)));
+}
+
 void setup_environment(void)
 {
-  cell prim_car = join(lit, join(prim, join(s_car, 0)));
-  cell prim_cdr = join(lit, join(prim, join(s_cdr, 0)));
+  cell vars = 0;
+  cell vals = 0;
+
   cell x = join(a, join(get_sym("b"), join(get_sym("c"), 0)));
-  globe = extend_env(join(get_sym("x"), join(s_car, join(s_cdr, 0))), join(x, join(prim_car, join(prim_cdr, 0))), the_empty_env);
+
+  vars = join(s_car, vars);
+  vals = join(make_prim(s_car), vals);
+
+  vars = join(s_cdr, vars);
+  vals = join(make_prim(s_cdr), vals);
+
+  vars = join(s_join, vars);
+  vals = join(make_prim(s_join), vals);
+
+  vars = join(get_sym("x"), vars);
+  vals = join(x, vals);
+
+  globe = extend_env(vars, vals, the_empty_env);
   dyn = extend_env(join(get_sym("y"), 0), join(get_sym("ninety-nine"), 0), the_empty_env);
 }

@@ -138,6 +138,8 @@ void sym_init(void)
   set = get_sym("set");
   s_car = get_sym("car");
   s_cdr = get_sym("cdr");
+  s_id = get_sym("id");
+  s_join = get_sym("join");
   unbound = get_sym("*unbound*");
   uvar = get_sym("uvar");
   where = get_sym("where");

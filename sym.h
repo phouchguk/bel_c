@@ -40,6 +40,8 @@ cell quote;
 cell set;
 cell s_car;
 cell s_cdr;
+cell s_id;
+cell s_join;
 cell unbound;
 cell uvar;
 cell where;
