@@ -78,6 +78,8 @@ cell lookup_variable_value(cell var, cell env)
 
     while (vars) {
       if (car(vars) == var) {
+        set_loc(a, vals);
+
         return car(vals);
       }
 
@@ -168,9 +170,9 @@ cell get_dyn(void)
 
 void setup_environment(void)
 {
-  cell s_cdr = get_sym("cdr");
+  cell prim_car = join(lit, join(prim, join(s_car, 0)));
   cell prim_cdr = join(lit, join(prim, join(s_cdr, 0)));
   cell x = join(a, join(get_sym("b"), join(get_sym("c"), 0)));
-  globe = extend_env(join(get_sym("x"), join(s_cdr, 0)), join(x, join(prim_cdr, 0)), the_empty_env);
+  globe = extend_env(join(get_sym("x"), join(s_car, join(s_cdr, 0))), join(x, join(prim_car, join(prim_cdr, 0))), the_empty_env);
   dyn = extend_env(join(get_sym("y"), 0), join(get_sym("ninety-nine"), 0), the_empty_env);
 }

@@ -136,6 +136,8 @@ void sym_init(void)
   prim = get_sym("prim");
   quote = get_sym("quote");
   set = get_sym("set");
+  s_car = get_sym("car");
+  s_cdr = get_sym("cdr");
   unbound = get_sym("*unbound*");
   uvar = get_sym("uvar");
   where = get_sym("where");

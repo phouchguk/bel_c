@@ -14,9 +14,13 @@ cell join(cell, cell);
 cell car(cell);
 cell cdr(cell);
 
+cell bel_car(cell p);
+cell bel_cdr(cell p);
+
 cell xar(cell, cell);
 cell xdr(cell, cell);
 
+void set_loc(cell l, cell lc);
 void reset_loc(void);
 cell get_where(void);
 

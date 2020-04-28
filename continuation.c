@@ -100,6 +100,7 @@ cell evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
 
 cell evaluate_where(cell e, cell r, cell d, cell k)
 {
+  reset_loc();
   return eval(e, r, d, make_where_cont(k));
 }
 
@@ -189,8 +190,6 @@ cell resume_evfn(cell k, cell this, cell op)
 {
   cell args, r, d;
 
-  printf("resume evfn\n");
-
   args = car(this);
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
@@ -203,8 +202,6 @@ cell resume_argument(cell k, cell this, cell arg)
 {
   cell remaining, r, d;
 
-  printf("resume argument\n");
-
   remaining = car(this);
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
@@ -216,21 +213,23 @@ cell resume_gather(cell k, cell this, cell args)
 {
   cell arg = car(this);
 
-  printf("resume gather\n");
-  pr(k);
-
   /* strip '(lit cont' from 'k' */
   return resume(cdr(cdr(k)), join(arg, args));
 }
 
 cell apply_prim(cell k, cell prim, cell args)
 {
-  printf("apply prim\n");
-  /* only cdr for now */
-  pr(cdr(car(args)));
-  printf("\n");
+  cell val = 0;
 
-  return make_next(k, cdr(car(args)));
+  if (prim == s_car) {
+    val = bel_car(car(args));
+  }
+
+  if (prim == s_cdr) {
+    val = bel_cdr(car(args));
+  }
+
+  return make_next(k, val);
 }
 
 cell resume_apply(cell k, cell this, cell args)
@@ -242,8 +241,6 @@ cell resume_apply(cell k, cell this, cell args)
 
   cell f = car(this);
   cell t = car(cdr(f));
-
-  printf("resume apply\n");
 
   if (t == prim) {
     return apply_prim(k, car(cdr(cdr(f))), args);
@@ -258,11 +255,9 @@ cell resume_where(cell k)
   cell w = get_where();
 
   if (!w) {
-    printf("bad where -- RESUME_WHERE");
+    printf("bad where -- RESUME_WHERE\n");
     exit(1);
   }
-
-  pr(w);
 
   return make_next(k, w);
 }
@@ -275,7 +270,7 @@ cell resume(cell this, cell val)
 
   if (t == base) {
     pr(val);
-    printf("\n");
+    printf("\n\n");
 
     return 0; /* should return a next, but base stops execution */
   }

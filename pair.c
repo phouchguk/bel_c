@@ -178,6 +178,12 @@ int id(cell a, cell b)
   return a == b;
 }
 
+void set_loc(cell l, cell lc)
+{
+  loc = l;
+  loc_cell = lc;
+}
+
 void reset_loc(void)
 {
   loc = 0;
@@ -229,9 +235,6 @@ cell car(cell p)
     exit(1);
   }
 
-  loc = a;
-  loc_cell = p;
-
   return the_cars[p & val_mask];
 }
 
@@ -246,10 +249,27 @@ cell cdr(cell p)
     exit(1);
   }
 
+  return the_cdrs[p & val_mask];
+}
+
+/* need versions called only from bel code so we can
+ * get the 'where'. c code calling ca/dr clobbers loc
+ * and loc_cell.
+*/
+cell bel_car(cell p)
+{
+  loc = a;
+  loc_cell = p;
+
+  return car(p);
+}
+
+cell bel_cdr(cell p)
+{
   loc = d;
   loc_cell = p;
 
-  return the_cdrs[p & val_mask];
+  return cdr(p);
 }
 
 cell xar(cell p, cell a)

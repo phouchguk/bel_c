@@ -38,6 +38,8 @@ cell o;
 cell prim;
 cell quote;
 cell set;
+cell s_car;
+cell s_cdr;
 cell unbound;
 cell uvar;
 cell where;

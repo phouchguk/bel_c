@@ -67,8 +67,11 @@ void got_exp(cell exp)
   printf("\n");
 
   n = eval(exp, get_globe(), get_dyn(), make_base_cont());
+
+  /*
   pr(n);
   printf("\n");
+  */
 
   while (n) {
     n = resume(next_k(n), next_val(n));

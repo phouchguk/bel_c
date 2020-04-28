@@ -5,3 +5,6 @@
 (uvar)
 (uvar)
 (where (cdr x))
+(where (car x))
+(where (car (cdr x)))
+(where x)
