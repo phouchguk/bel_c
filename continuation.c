@@ -220,8 +220,23 @@ cell resume_gather(cell k, cell this, cell args)
 cell apply_prim(cell k, cell prim, cell args)
 {
   cell val = 0;
+  int len = length(args);
+
+  if (prim == s_id) {
+    if (len != 2) {
+      printf("id requires 2 args\n");
+      exit(1);
+    }
+
+    val = id(car(args), car(cdr(args))) ? t : 0;
+  }
 
   if (prim == s_join) {
+    if (len > 2) {
+      printf("join takes max 2 args\n");
+      exit(1);
+    }
+
     if (args) {
       val = join(car(args), cdr(args) ? car(cdr(args)) : 0);
     } else {
@@ -230,10 +245,20 @@ cell apply_prim(cell k, cell prim, cell args)
   }
 
   if (prim == s_car) {
+    if (len != 1) {
+      printf("car takes a single arg\n");
+      exit(1);
+    }
+
     val = bel_car(car(args));
   }
 
   if (prim == s_cdr) {
+    if (len != 1) {
+      printf("cdr takes a single arg\n");
+      exit(1);
+    }
+
     val = bel_cdr(car(args));
   }
 

@@ -11,3 +11,12 @@
 (join)
 (join 'a)
 (join 'a 'b)
+(id 'a 'a)
+(id (join) (join))
+(id \a \a)
+(id \a 'a)
+(id \a \b)
+(id 'a 'b)
+(id "hello" "hello")
+(id id id)
+id

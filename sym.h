@@ -11,7 +11,6 @@ char *nom(cell);
 void print_sym(cell c);
 
 /* global symbol defs */
-cell nil;
 cell t;
 
 cell a;

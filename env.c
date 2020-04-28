@@ -186,6 +186,9 @@ void setup_environment(void)
   vars = join(s_cdr, vars);
   vals = join(make_prim(s_cdr), vals);
 
+  vars = join(s_id, vars);
+  vals = join(make_prim(s_id), vals);
+
   vars = join(s_join, vars);
   vals = join(make_prim(s_join), vals);
 

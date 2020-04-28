@@ -108,7 +108,7 @@ void print_sym(cell c)
 void sym_init(void)
 {
   /* want nil and t first - c code presumes sym nil is 0 */
-  nil = get_sym("nil");
+  get_sym("nil"); /* nil refered to as '0' in c code */
   t = get_sym("t");
 
   /* alphabetical after */
