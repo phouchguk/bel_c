@@ -192,6 +192,24 @@ void setup_environment(void)
   vars = join(s_join, vars);
   vals = join(make_prim(s_join), vals);
 
+  vars = join(s_type, vars);
+  vals = join(make_prim(s_type), vals);
+
+  vars = join(s_xar, vars);
+  vals = join(make_prim(s_xar), vals);
+
+  vars = join(s_xdr, vars);
+  vals = join(make_prim(s_xdr), vals);
+
+  vars = join(s_nom, vars);
+  vals = join(make_prim(s_nom), vals);
+
+  vars = join(s_sym, vars);
+  vals = join(make_prim(s_sym), vals);
+
+  vars = join(s_coin, vars);
+  vals = join(make_prim(s_coin), vals);
+
   vars = join(get_sym("x"), vars);
   vals = join(x, vals);
 

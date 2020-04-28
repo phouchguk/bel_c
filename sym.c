@@ -140,6 +140,12 @@ void sym_init(void)
   s_cdr = get_sym("cdr");
   s_id = get_sym("id");
   s_join = get_sym("join");
+  s_type = get_sym("type");
+  s_xar = get_sym("xar");
+  s_xdr = get_sym("xdr");
+  s_nom = get_sym("nom");
+  s_sym = get_sym("sym");
+  s_coin = get_sym("coin");
   unbound = get_sym("*unbound*");
   uvar = get_sym("uvar");
   where = get_sym("where");

@@ -219,17 +219,8 @@ cell resume_gather(cell k, cell this, cell args)
 
 cell apply_prim(cell k, cell prim, cell args)
 {
-  cell val = 0;
+  cell a1, a2;
   int len = length(args);
-
-  if (prim == s_id) {
-    if (len != 2) {
-      printf("id requires 2 args\n");
-      exit(1);
-    }
-
-    val = id(car(args), car(cdr(args))) ? t : 0;
-  }
 
   if (prim == s_join) {
     if (len > 2) {
@@ -238,11 +229,13 @@ cell apply_prim(cell k, cell prim, cell args)
     }
 
     if (args) {
-      val = join(car(args), cdr(args) ? car(cdr(args)) : 0);
+      return make_next(k, join(car(args), cdr(args) ? car(cdr(args)) : 0));
     } else {
-      val = join(0, 0);
+      return make_next(k, join(0, 0));
     }
   }
+
+  a1 = car(args);
 
   if (prim == s_car) {
     if (len != 1) {
@@ -250,7 +243,7 @@ cell apply_prim(cell k, cell prim, cell args)
       exit(1);
     }
 
-    val = bel_car(car(args));
+    return make_next(k, bel_car(a1));
   }
 
   if (prim == s_cdr) {
@@ -259,10 +252,30 @@ cell apply_prim(cell k, cell prim, cell args)
       exit(1);
     }
 
-    val = bel_cdr(car(args));
+    return make_next(k, bel_cdr(a1));
   }
 
-  return make_next(k, val);
+  if (len != 2) {
+    printf("%s requires 2 args\n", nom(prim));
+    exit(1);
+  }
+
+  a2 = car(cdr(args));
+
+  if (prim == s_id) {
+    return make_next(k, id(a1, a2) ? t : 0);
+  }
+
+  if (prim == s_xar) {
+    return make_next(k, xar(a1, a2));
+  }
+
+  if (prim == s_xdr) {
+    return make_next(k, xdr(a1, a2));
+  }
+
+  printf("unrecognised prim '%s' -- APPLY_PRIM\n", nom(prim));
+  exit(1);
 }
 
 cell resume_apply(cell k, cell this, cell args)

@@ -20,3 +20,14 @@
 (id "hello" "hello")
 (id id id)
 id
+(xar (join) 'a)
+(xdr (join) 'a)
+
+(xar x 'first)
+x
+
+(xdr x 'second)
+x
+
+(xar (car (where x)) '(d e f))
+x
