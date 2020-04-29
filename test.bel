@@ -34,3 +34,12 @@ x
 
 (xar (car (where z)) '(a c e))
 z
+
+(xar (car (where identity)) (lit clo nil (x) x))
+(identity z)
+(identity "hello")
+
+
+
+(xar (car (where myjoin)) (join 'lit (join 'clo (join scope (join '(a b) (join '(join a b) nil))))))
+(myjoin \a \b)

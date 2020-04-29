@@ -153,6 +153,14 @@ cell lookup_variable(cell n, cell r, cell d, int inwhere, cell k)
 {
   cell val;
 
+  if (n == s_globe) {
+    return make_next(k, globe);
+  }
+
+  if (n == scope) {
+    return make_next(k, r);
+  }
+
   /* lookup in dynamic environment first (inwhere doesn't set dynamic) */
   val = lookup_variable_value(n, d, 0);
 

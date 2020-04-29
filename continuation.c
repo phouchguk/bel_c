@@ -285,11 +285,22 @@ cell resume_apply(cell k, cell this, cell args)
    * only handling prim for now
    */
 
+  cell env, parms, exp;
   cell f = car(this);
   cell t = car(cdr(f));
 
   if (t == prim) {
     return apply_prim(k, car(cdr(cdr(f))), args);
+  }
+
+  if (t == clo) {
+    /* (lit clo env parms exp) */
+    env = car(cdr(cdr(f)));
+    parms = car(cdr(cdr(cdr(f))));
+    exp = car(cdr(cdr(cdr(cdr(f)))));
+
+    /* should have d and inwhere here! */
+    return eval(exp, extend_env(parms, args, env), 0, 0, k);
   }
 
   printf("can't apply -- RESUME_APPLY\n");
