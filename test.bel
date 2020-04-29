@@ -31,3 +31,6 @@ x
 
 (xar (car (where x)) '(d e f))
 x
+
+(xar (car (where z)) '(a c e))
+z

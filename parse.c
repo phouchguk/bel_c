@@ -66,7 +66,7 @@ void got_exp(cell exp)
   pr(exp);
   printf("\n");
 
-  n = eval(exp, get_globe(), get_dyn(), make_base_cont());
+  n = eval(exp, get_globe(), get_dyn(), 0, make_base_cont());
 
   /*
   pr(n);

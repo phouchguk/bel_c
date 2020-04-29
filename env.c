@@ -67,9 +67,9 @@ cell extend_env(cell vars, cell vals, cell base_env)
   return join(make_frame(vars, vals), base_env);
 }
 
-cell lookup_variable_value(cell var, cell env)
+cell lookup_variable_value(cell var, cell env, int inwhere)
 {
-  cell frame, vals, vars;
+  cell enc, frame, vals, vars;
 
   while (env) {
     frame = first_frame(env);
@@ -87,12 +87,21 @@ cell lookup_variable_value(cell var, cell env)
       vars = cdr(vars);
     }
 
-    env = enclosing_env(env);
+    enc = enclosing_env(env);
+
+    if (!enc && inwhere) {
+      /* create binding at root and loop again to 'find' it */
+      add_binding_to_frame(var, 0, frame);
+      continue;
+    }
+
+    env = enc;
   }
 
   return unbound;
 }
 
+/*
 cell set_variable_value(cell var, cell val, cell env, int define)
 {
   cell enc, frame, vals, vars;
@@ -115,7 +124,7 @@ cell set_variable_value(cell var, cell val, cell env, int define)
     enc = enclosing_env(env);
 
     if (!enc && define) {
-      /* define a new variable at root */
+      comment: define a new variable at root
       add_binding_to_frame(var, val, frame);
       return val;
     }
@@ -130,7 +139,7 @@ cell set_variable(cell var, cell val, cell r, cell d, cell k)
 {
   cell existing;
 
-  existing = lookup_variable_value(var, d);
+  existing = lookup_variable_value(var, d, 0);
 
   if (existing == unbound) {
     return make_next(k, set_variable_value(var, val, r, 1));
@@ -138,16 +147,17 @@ cell set_variable(cell var, cell val, cell r, cell d, cell k)
 
   return make_next(k, set_variable_value(var, val, d, 0));
 }
+*/
 
-cell lookup_variable(cell n, cell r, cell d, cell k)
+cell lookup_variable(cell n, cell r, cell d, int inwhere, cell k)
 {
   cell val;
 
-  /* lookup in dynamic environment first */
-  val = lookup_variable_value(n, d);
+  /* lookup in dynamic environment first (inwhere doesn't set dynamic) */
+  val = lookup_variable_value(n, d, 0);
 
   if (val == unbound) {
-    val = lookup_variable_value(n, r);
+    val = lookup_variable_value(n, r, inwhere);
 
     if (val == unbound) {
       printf("unbound variable '%s' -- LOOKUP_VARIABLE\n", nom(n));

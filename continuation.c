@@ -26,34 +26,22 @@ cell make_where_cont(cell k)
   return join(lit, join(cont, join(where, join(k, 0))));
 }
 
-cell make_cont4(cell t, cell k, cell a, cell b, cell c)
+cell make_cont5(cell t, cell k, cell a, cell b, cell c, cell d)
 {
   /* (lit cont t k a b c) */
-  return join(lit, join(cont, join(t, join(k, join(a, join(b, join(c, 0)))))));
+  return join(lit, join(cont, join(t, join(k, join(a, join(b, join(c, join(d, 0))))))));
 }
 
-cell make_begin_cont(cell k, cell ex, cell r, cell d)
-{
-  /* (lit cont do k ex r d) */
-  return make_cont4(begin, k, ex, r, d);
-}
-
-cell make_if_cont(cell k, cell et, cell efx, cell r, cell d)
+cell make_if_cont(cell k, cell et, cell efx, cell r, cell d, int inwhere)
 {
   /* (lit cont if k et efx r d) */
-  return join(lit, join(cont, join(iff, join(k, join(et, join(efx, join(r, join(d, 0))))))));
+  return join(lit, join(cont, join(iff, join(k, join(et, join(efx, join(r, join(d, join(inwhere, 0)))))))));
 }
 
-cell make_set_cont(cell k, cell var, cell r, cell d)
+cell make_evfn_cont(cell k, cell args, cell r, cell d, int inwhere)
 {
-  /* (lit cont set k var r d) */
-  return make_cont4(set, k, var, r, d);
-}
-
-cell make_evfn_cont(cell k, cell args, cell r, cell d)
-{
-  /* (lit cont evfn k args r d) */
-  return make_cont4(evfn, k, args, r, d);
+  /* (lit cont evfn k args r d inwhere) */
+  return make_cont5(evfn, k, args, r, d, inwhere);
 }
 
 cell make_apply_cont(cell k, cell op)
@@ -68,15 +56,28 @@ cell make_gather_cont(cell k, cell arg)
   return join(lit, join(cont, join(gather, join(k, join(arg, 0)))));
 }
 
-cell make_argument_cont(cell k, cell args, cell r, cell d)
+cell make_argument_cont(cell k, cell args, cell r, cell d, int inwhere)
 {
   /* (lit cont evfn k args r d) */
-  return make_cont4(argument, k, args, r, d);
+  return make_cont5(argument, k, args, r, d, inwhere);
 }
 
 cell make_next(cell k, cell val)
 {
   return make_lit3(next, k, val);
+}
+
+/*
+cell make_begin_cont(cell k, cell ex, cell r, cell d)
+{
+  comment: (lit cont do k ex r d)
+  return make_cont4(begin, k, ex, r, d);
+}
+
+cell make_set_cont(cell k, cell var, cell r, cell d)
+{
+  comment: (lit cont set k var r d)
+  return make_cont4(set, k, var, r, d);
 }
 
 cell evaluate_begin(cell ex, cell r, cell d, cell k)
@@ -89,19 +90,8 @@ cell evaluate_begin(cell ex, cell r, cell d, cell k)
     return eval(car(ex), r, d, make_begin_cont(k, cdr(ex), r, d));
   }
 
-  /* last exp */
+  comment: last exp
   return eval(car(ex), r, d, k);
-}
-
-cell evaluate_if(cell ec, cell et, cell efx, cell r, cell d, cell k)
-{
-  return eval(ec, r, d, make_if_cont(k, et, efx, r, d));
-}
-
-cell evaluate_where(cell e, cell r, cell d, cell k)
-{
-  reset_loc();
-  return eval(e, r, d, make_where_cont(k));
 }
 
 cell evaluate_set(cell var, cell e, cell r, cell d, cell k)
@@ -109,41 +99,61 @@ cell evaluate_set(cell var, cell e, cell r, cell d, cell k)
   return eval(e, r, d, make_set_cont(k, var, r, d));
 }
 
-cell evaluate_application(cell op, cell args, cell r, cell d, cell k)
-{
-  return eval(op, r, d, make_evfn_cont(k, args, r, d));
-}
-
 cell resume_begin(cell k, cell this, cell val)
 {
   cell ex, r, d;
 
-  /* (ex r d) */
+  comment: (ex r d)
   ex = car(this);
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
 
-  /*
-  printf("do ignored: ");
-  pr(val);
-  printf("\n");
-  */
-
   return evaluate_begin(ex, r, d, k);
+}
+
+cell resume_set(cell k, cell this, cell val)
+{
+  cell var, r, d;
+
+  comment: (var r d)
+  var = car(this);
+  r = car(cdr(this));
+  d = car(cdr(cdr(this)));
+
+  return set_variable(var, val, r, d, k);
+}
+*/
+
+cell evaluate_if(cell ec, cell et, cell efx, cell r, cell d, int inwhere, cell k)
+{
+  return eval(ec, r, d, inwhere, make_if_cont(k, et, efx, r, d, inwhere));
+}
+
+cell evaluate_where(cell e, cell r, cell d, int inwhere, cell k)
+{
+  reset_loc();
+  return eval(e, r, d, inwhere, make_where_cont(k));
+}
+
+cell evaluate_application(cell op, cell args, cell r, cell d, int inwhere, cell k)
+{
+  return eval(op, r, d, inwhere, make_evfn_cont(k, args, r, d, inwhere));
 }
 
 cell resume_if(cell k, cell this, cell val)
 {
-  cell alt, et, efx, r, d;
+  cell alt, et, efx, r, d, inwhere;
 
-  /* (et efx r d) */
+  /* (et efx r d inwhere) */
   r = car(cdr(cdr(this)));
   d = car(cdr(cdr(cdr(this))));
+  inwhere = car(cdr(cdr(cdr(cdr(this)))));
+
 
   if (val) {
     /* consequent */
     et = car(this);
-    return eval(et, r, d, k);
+    return eval(et, r, d, inwhere, k);
   }
 
   efx = car(cdr(this));
@@ -157,29 +167,17 @@ cell resume_if(cell k, cell this, cell val)
 
   if (!cdr(cdr(efx))) {
     /* last alternative */
-    return eval(alt, r, d, k);
+    return eval(alt, r, d, inwhere, k);
   }
 
   /* alternate condition */
-  return evaluate_if(alt, car(cdr(efx)), cdr(cdr(efx)), r, d, k);
+  return evaluate_if(alt, car(cdr(efx)), cdr(cdr(efx)), r, d, inwhere, k);
 }
 
-cell resume_set(cell k, cell this, cell val)
-{
-  cell var, r, d;
-
-  /* (var r d) */
-  var = car(this);
-  r = car(cdr(this));
-  d = car(cdr(cdr(this)));
-
-  return set_variable(var, val, r, d, k);
-}
-
-cell evaluate_arguments(cell args, cell r, cell d, cell k)
+cell evaluate_arguments(cell args, cell r, cell d, int inwhere, cell k)
 {
   if (pair(args)) {
-    return eval(car(args), r, d, make_argument_cont(k, cdr(args), r, d));
+    return eval(car(args), r, d, inwhere, make_argument_cont(k, cdr(args), r, d, inwhere));
   }
 
   /* no more arguments */
@@ -188,25 +186,27 @@ cell evaluate_arguments(cell args, cell r, cell d, cell k)
 
 cell resume_evfn(cell k, cell this, cell op)
 {
-  cell args, r, d;
+  cell args, r, d, inwhere;
 
   args = car(this);
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
+  inwhere = car(cdr(cdr(cdr(this))));
 
   /* is it macro, is it apply ?? presume not for now */
-  return evaluate_arguments(args, r, d, make_apply_cont(k, op));
+  return evaluate_arguments(args, r, d, inwhere, make_apply_cont(k, op));
 }
 
 cell resume_argument(cell k, cell this, cell arg)
 {
-  cell remaining, r, d;
+  cell remaining, r, d, inwhere;
 
   remaining = car(this);
   r = car(cdr(this));
   d = car(cdr(cdr(this)));
+  inwhere = car(cdr(cdr(cdr(this))));
 
-  return evaluate_arguments(remaining, r, d, make_gather_cont(k, arg));
+  return evaluate_arguments(remaining, r, d, inwhere, make_gather_cont(k, arg));
 }
 
 cell resume_gather(cell k, cell this, cell args)
@@ -333,6 +333,7 @@ cell resume(cell this, cell val)
     return resume_if(k, props, val);
   }
 
+  /*
   if (t == begin) {
     return resume_begin(k, props, val);
   }
@@ -340,6 +341,7 @@ cell resume(cell this, cell val)
   if (t == set) {
     return resume_set(k, props, val);
   }
+  */
 
   if (t == evfn) {
     return resume_evfn(k, props, val);

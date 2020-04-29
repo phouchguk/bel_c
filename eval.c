@@ -76,7 +76,7 @@ cell evaluate_macro(cell parms, cell body, cell r, cell k)
   return make_next(k, join(lit, join(mac, join(fn(parms, body, r), 0))));
 }
 
-cell eval(cell e, cell r, cell d, cell k)
+cell eval(cell e, cell r, cell d, int inwhere, cell k)
 {
   cell op;
 
@@ -85,7 +85,7 @@ cell eval(cell e, cell r, cell d, cell k)
   }
 
   if (atom(e)) {
-    return lookup_variable(e, r, d, k);
+    return lookup_variable(e, r, d, inwhere, k);
   }
 
   op = car(e);
@@ -95,7 +95,7 @@ cell eval(cell e, cell r, cell d, cell k)
   }
 
   if (op == iff) {
-    return evaluate_if(car(cdr(e)), car(cdr(cdr(e))), cdr(cdr(cdr(e))), r, d, k);
+    return evaluate_if(car(cdr(e)), car(cdr(cdr(e))), cdr(cdr(cdr(e))), r, d, inwhere, k);
   }
 
   if (op == dyn) {
@@ -107,20 +107,18 @@ cell eval(cell e, cell r, cell d, cell k)
   }
 
   if (op == where) {
-    return evaluate_where(car(cdr(e)), r, d, k);
+    return evaluate_where(car(cdr(e)), r, d, 1, k);
   }
 
-  /* looking at the bel source I don't think I actually need begin, set, lambda or macro - they're just macros */
+
+  /*
+  looking at the bel source I don't think I actually need begin, set, lambda or macro - they're just macros
   if (op == set) {
-    return make_next(k, 0);
-    /* no special set, this is a simple macro calling where */
-    /*return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);*/
+    return evaluate_set(car(cdr(e)), car(cdr(cdr(e))), r, d, k);
   }
 
   if (op == begin) {
-    return make_next(k, 0);
-    /* no special 'do', simple macro transformation into fns */
-    /*return evaluate_begin(cdr(e), r, d, k);*/
+    return evaluate_begin(cdr(e), r, d, k);
   }
 
   if (op == lambda) {
@@ -130,7 +128,7 @@ cell eval(cell e, cell r, cell d, cell k)
   if (op == macro) {
     return evaluate_macro(car(cdr(e)), cdr(cdr(e)), r, k);
   }
-  /* ^ only needed til we can load binary dump */
+  */
 
-  return evaluate_application(op, cdr(e), r, d, k);
+  return evaluate_application(op, cdr(e), r, d, inwhere, k);
 }
