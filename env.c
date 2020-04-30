@@ -75,6 +75,8 @@ void destructure(cell invars, cell invals, cell outvars, cell outvals, cell opts
 
     if (pair(r)) {
       destructure(r, l, outvars, outvals, opts, tcs);
+      destructure(cdr(invars), cdr(invals), outvars, outvals, opts, tcs);
+
       return;
     }
 
