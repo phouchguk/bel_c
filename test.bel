@@ -40,6 +40,10 @@ z
 (identity "hello")
 
 
+'(a b c . d)
+
+'(a . b)
+
 
 (xar (car (where myjoin)) (join 'lit (join 'clo (join scope (join '(a b) (join '(join a b) nil))))))
 (myjoin \a \b)

@@ -7,6 +7,7 @@ void sym_report(void);
 void sym_init(void);
 int get_sym(char*);
 int get_uvar(void);
+int symbol(cell);
 char *nom(cell);
 void print_sym(cell c);
 

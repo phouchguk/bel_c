@@ -272,7 +272,11 @@ void parse_token(const char *str, const int start, const int end)
       list = cdr(list);
     }
 
+    list = xs;
+
     if (expect_close) {
+      xs = list;
+
       /* make the list improper */
       while (xs) {
         if (!cdr(cdr(xs))) {
@@ -289,15 +293,15 @@ void parse_token(const char *str, const int start, const int end)
     }
 
     if (q) {
-      xs = unqn(q, xs);
+      list = unqn(q, list);
     }
 
     if (list_stack) {
       /* nested list */
-      push_ls(xs);
+      push_ls(list);
     } else {
       /* finished top level list */
-      got_exp(xs);
+      got_exp(list);
     }
 
     return;

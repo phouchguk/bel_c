@@ -300,7 +300,7 @@ cell resume_apply(cell k, cell this, cell args)
     exp = car(cdr(cdr(cdr(cdr(f)))));
 
     /* should have d and inwhere here! */
-    return eval(exp, extend_env(parms, args, env), 0, 0, k);
+    return eval(exp, destructure_extend_env(parms, args, env), 0, 0, k);
   }
 
   printf("can't apply -- RESUME_APPLY\n");

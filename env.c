@@ -54,6 +54,52 @@ int length(cell x)
   return i;
 }
 
+/* takes any structure of variables and returns a flat list
+ * gathers optionals and vars needing type checks
+ */
+void destructure(cell invars, cell invals, cell outvars, cell outvals, cell opts, cell tcs)
+{
+  cell l, r;
+
+  if (pair(invars) && pair(invals)) {
+    r = car(invars);
+    l = car(invals);
+
+    if (r && symbol(r)) {
+      xar(outvars, join(r, car(outvars)));
+      xar(outvals, join(l, car(outvals)));
+
+      destructure(cdr(invars), cdr(invals), outvars, outvals, opts, tcs);
+      return;
+    }
+
+    if (pair(r)) {
+      destructure(r, l, outvars, outvals, opts, tcs);
+      return;
+    }
+
+    printf("Invalid parameter -- PREP_ENV_EXTEND\n");
+    exit(1);
+  }
+
+  if (!invars && !invals) {
+    return;
+  }
+
+  if (invars && symbol(invars)) {
+    /* check tcs! */
+
+    xar(outvars, join(invars, car(outvars)));
+    xar(outvals, join(invals, car(outvals)));
+
+    return;
+  }
+
+  /* check opt */
+  printf("Arity mismatch -- PREP_ENV_EXTEND\n");
+  exit(1);
+}
+
 cell extend_env(cell vars, cell vals, cell base_env)
 {
   int varl = length(vars);
@@ -65,6 +111,21 @@ cell extend_env(cell vars, cell vals, cell base_env)
   }
 
   return join(make_frame(vars, vals), base_env);
+}
+
+cell destructure_extend_env(cell vars, cell vals, cell base_env)
+{
+  cell outvars, outvals, opts, tcs;
+
+  outvars = join(0, 0);
+  outvals = join(0, 0);
+  opts = join(0, 0);
+  tcs = join(0, 0);
+
+  /* get a flat list of vars and vals */
+  destructure(vars, vals, outvars, outvals, opts, tcs);
+
+  return extend_env(car(outvars), car(outvals), base_env);
 }
 
 cell lookup_variable_value(cell var, cell env, int inwhere)
