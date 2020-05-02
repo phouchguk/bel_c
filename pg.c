@@ -2,15 +2,21 @@
 #include "pair.h"
 #include "sym.h"
 #include "pg.h"
+#include "print.h"
 
-/* vmark and smark need gc */
-cell globe, lock, smark, vmark;
+cell err, globe, loc, lock, s_globe, scope, smark, vmark;
 
 void pg_init(void)
 {
-  globe = 0;
+  globe = join(join(get_sym("x"), get_sym("smooth")), 0);
+
+  err = get_sym("err");
+  s_globe = get_sym("globe");
+  scope = get_sym("scope");
+  loc = get_sym("loc");
   lock = get_sym("lock");
 
+  /* vmark and smark need gc */
   smark = join(0, 0);
   vmark = join(0, 0);
 }
@@ -61,6 +67,11 @@ int literal(cell e)
     return 1;
   }
 
+  if (atom(e)) {
+    return 0;
+  }
+
+
   if (car(e) == lit) {
     return 1;
   }
@@ -95,6 +106,106 @@ cell make_k(s, r, m)
   return l3(s, r, m);
 }
 
+cell applyf(cell f, cell args, cell a, cell s, cell r, cell m)
+{
+  return make_k(0, 0, 0);
+}
+
+/* checks stack for dynamic binding */
+int binding(cell v, cell s)
+{
+  return 0;
+}
+
+cell sigerr(msg, s, r, m)
+{
+  cell b;
+  b = binding(err, s);
+
+  if (b) {
+    return applyf(cdr(b), join(msg, 0), 0, s, r, m);
+  } else {
+    printf("no err - SIGERR\n");
+    exit(1);
+  }
+}
+
+int inwhere(cell s)
+{
+  cell e;
+
+  e = car(car(s));
+
+  if (car(e) == smark && car(cdr(e)) == loc) {
+    return cdr(cdr(e));
+  }
+
+  return 0;
+}
+
+cell get(cell k, cell kvs)
+{
+  while (kvs) {
+    if (car(car(kvs)) == k) {
+      return car(kvs);
+    }
+
+    kvs = cdr(kvs);
+  }
+
+  return 0;
+}
+
+cell lookup(cell e, cell a, cell s, cell g)
+{
+  cell val;
+
+  val = binding(e, s);
+  if (val) {
+    return val;
+  }
+
+  val = get(e, a);
+  if (val) {
+    return val;
+  }
+
+  val = get(e, g);
+  if (val) {
+    return val;
+  }
+
+  if (e == scope) {
+    return join(e, a);
+  }
+
+  if (e == globe) {
+    return join(e, g);
+  }
+
+  return 0;
+
+}
+
+cell vref(cell v, cell a, cell s, cell r, cell m)
+{
+  cell g, l;
+
+  g = car(cdr(m));
+
+  if (inwhere(s)) {
+    return 0;
+  } else {
+    l = lookup(v, a, s, g);
+
+    if (l) {
+      return make_k(s, join(cdr(l), r), m);
+    } else {
+      return sigerr(l2(unbound, v), s, r, m);
+    }
+  }
+}
+
 /* w = work ((e a .))
 ** e = expression
 ** a = environment
@@ -107,25 +218,23 @@ cell make_k(s, r, m)
 */
 cell ev(cell w, cell r, cell m)
 {
-  cell ea, e, s;
+  cell ea, a, e, s;
   ea = car(w);
   s = cdr(w);
 
   e = car(ea);
-  /*a = car(cdr(ea));*/
+  a = car(cdr(ea));
 
   if (literal(e)) {
     return make_k(s, join(e, r), m);
   }
 
+  if (variable(e)) {
+    return vref(e, a, s, r, m);
+  }
+
   printf("bad e -- EV\n");
   exit(1);
-}
-
-/* checks stack for dynamic binding */
-int binding(cell v, cell s)
-{
-  return 0;
 }
 
 cell pg(cell e)
@@ -142,7 +251,7 @@ cell pg(cell e)
   */
 
   /* this is 'mev' - we don't have tail calls */
-  k = ev(join(l2(e, 0), 0), 0, l2(0, globe));
+  k = ev(join(l2(e, join(join(get_sym("x"), get_sym("groovy")),0)), 0), 0, l2(0, globe));
 
   while (1) {
     /* unpack continuation */
