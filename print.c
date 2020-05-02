@@ -60,10 +60,12 @@ void pr(cell c)
     break;
 
   case PAIR:
+    /*
     if (car(c) == lit) {
       printf("<%s>", nom(car(cdr(c))));
       break;
     }
+    */
 
     printf("(");
 

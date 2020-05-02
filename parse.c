@@ -59,23 +59,25 @@ cell next_val(cell n)
 
 void got_exp(cell exp)
 {
-  cell n;
+  /*cell n;*/
 
   /*exp = gc(exp);*/
 
   pr(exp);
   printf("\n");
 
-  n = eval(exp, get_globe(), get_dyn(), 0, make_base_cont());
-
   /*
   pr(n);
   printf("\n");
   */
 
+  /*
+  n = eval(exp, get_globe(), get_dyn(), 0, make_base_cont());
+
   while (n) {
     n = resume(next_k(n), next_val(n));
   }
+  */
 }
 
 char token[MAX_TOKEN];
