@@ -4,21 +4,27 @@
 #include "pg.h"
 #include "print.h"
 
-cell err, globe, loc, lock, s_globe, scope, smark, vmark;
+cell after, ccc, err, globe, loc, lock, s_globe, malformed, scope, smark, thread, vmark;
 
 void pg_init(void)
 {
-  globe = join(join(get_sym("x"), get_sym("smooth")), 0);
-
-  err = get_sym("err");
-  s_globe = get_sym("globe");
-  scope = get_sym("scope");
-  loc = get_sym("loc");
-  lock = get_sym("lock");
-
   /* vmark and smark need gc */
   smark = join(0, 0);
   vmark = join(0, 0);
+
+  /* initial global environement */
+  globe = join(join(get_sym("x"), get_sym("smooth")), 0);
+
+  /* syms used in pg */
+  after = get_sym("after");
+  ccc = get_sym("ccc");
+  err = get_sym("err");
+  s_globe = get_sym("globe");
+  loc = get_sym("loc");
+  lock = get_sym("lock");
+  malformed = get_sym("malformed");
+  scope = get_sym("scope");
+  thread = get_sym("thread");
 }
 
 int atom(cell x)
@@ -34,6 +40,23 @@ int chr(cell x)
 int stream(cell x)
 {
   return x >> CELL_SHIFT == STREAM;
+}
+
+int proper(cell x)
+{
+  if (atom(x)) {
+    return 0;
+  }
+
+  while (x) {
+    if (!pair(x)) {
+      return 0;
+    }
+
+    x = cdr(x);
+  }
+
+  return 1;
 }
 
 int string(cell x)
@@ -206,6 +229,21 @@ cell vref(cell v, cell a, cell s, cell r, cell m)
   }
 }
 
+int special(cell x)
+{
+  return x == quote || x == iff || x == where || x == dyn || x == after || x == ccc || x == thread;
+}
+
+cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
+{
+  if (op == quote) {
+    return make_k(s, join(car(es), r), m);
+  }
+
+  printf("bad special -- EV_SPECIAL\n");
+  exit(1);
+}
+
 /* w = work ((e a .))
 ** e = expression
 ** a = environment
@@ -218,7 +256,7 @@ cell vref(cell v, cell a, cell s, cell r, cell m)
 */
 cell ev(cell w, cell r, cell m)
 {
-  cell ea, a, e, s;
+  cell ea, a, e, s, op;
   ea = car(w);
   s = cdr(w);
 
@@ -231,6 +269,16 @@ cell ev(cell w, cell r, cell m)
 
   if (variable(e)) {
     return vref(e, a, s, r, m);
+  }
+
+  if (!proper(e)) {
+    return sigerr(malformed, s, r, m);
+  }
+
+  op = car(e);
+
+  if (special(op)) {
+    return ev_special(op, cdr(e), a, s, r, m);
   }
 
   printf("bad e -- EV\n");
