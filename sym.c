@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "type.h"
 #include "pair.h"
 #include "sym.h"
@@ -149,6 +146,5 @@ void sym_init(void)
   scope = get_sym("scope");
   set = get_sym("set");
   unbound = get_sym("*unbound*");
-  uvar = get_sym("uvar");
   where = get_sym("where");
 }

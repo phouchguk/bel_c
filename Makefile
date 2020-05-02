@@ -1,9 +1,8 @@
 cc=gcc
 CFLAGS=-std=c89 -pedantic-errors -O3 -Wall -Wpedantic -Wswitch -Werror
-bel_objs= bel.o pair.o parse.o print.o sym.o eval.o continuation.o env.o pg.o
-test_objs= test.o
+bel_objs= bel.o pair.o parse.o print.o sym.o pg.o
 
-all : bel test
+all : bel
 
 bel : $(bel_objs)
 	cc -o bel $(bel_objs)
@@ -31,4 +30,4 @@ sym.o : type.h pair.h
 
 .PHONY : clean
 clean :
-	rm bel test *.o
+	rm bel *.o

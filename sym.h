@@ -1,12 +1,14 @@
 #ifndef SYM_H
 #define SYM_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 void dump_sym(FILE *f);
 void load_sym(FILE *f);
 void sym_report(void);
 void sym_init(void);
 int get_sym(char*);
-int get_uvar(void);
 int symbol(cell);
 char *nom(cell);
 void print_sym(cell c);
@@ -51,7 +53,6 @@ cell s_xdr;
 cell set;
 cell scope;
 cell unbound;
-cell uvar;
 cell where;
 
 #endif

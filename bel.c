@@ -6,6 +6,7 @@
 #include "parse.h"
 #include "sym.h"
 #include "env.h"
+#include "pg.h"
 
 void load_dump()
 {
@@ -17,7 +18,7 @@ void load_stdin()
   int c;
 
   sym_init();
-  setup_environment();
+  pg_init();
 
   while ((c = getchar()) != EOF) {
     parse_char(c);
