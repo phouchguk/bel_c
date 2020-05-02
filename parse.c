@@ -9,6 +9,7 @@
 #include "eval.h"
 #include "continuation.h"
 #include "env.h"
+#include "pg.h"
 
 #define MAX_TOKEN 255
 
@@ -63,6 +64,7 @@ void got_exp(cell exp)
 
   /*exp = gc(exp);*/
 
+  exp = pg(exp);
   pr(exp);
   printf("\n");
 
