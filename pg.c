@@ -357,7 +357,7 @@ cell evmark(cell e, cell a, cell s, cell r, cell m)
 
 cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
 {
-  cell alt, e, e1, e2, f, k, mark, new, v;
+  cell alt, e, e1, e2, f, g, k, mark, new, p, v;
 
   if (op == smark) {
     return evmark(es, a, s, r, m);
@@ -423,6 +423,13 @@ cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
     return make_k(e, r, m);
   }
 
+  if (op == thread) {
+    p = car(m);
+    g = car(cdr(m));
+
+    return make_k(s, join(0, r), l2(join(l2(l2(car(es), a), 0), p), g));
+  }
+
   printf("bad special -- EV_SPECIAL\n");
   exit(1);
 }
@@ -445,6 +452,12 @@ cell ev(cell w, cell r, cell m)
 
   e = car(ea);
   a = car(cdr(ea));
+
+  /*
+  printf("   ");
+  pr(e);
+  printf("\n");
+  */
 
   if (literal(e)) {
     return make_k(s, join(e, r), m);
@@ -526,10 +539,10 @@ cell pg(cell e)
     } else {
       if (p) {
         /* current thread is finished. any other pending work? */
-        sr = car(p);
-        s = car(sr);
-        r = car(cdr(sr));
+        s = car(p);
+        r = 0;
         p = cdr(p);
+
       } else {
         /* finished - return top of return stack */
         return car(r);
