@@ -4,7 +4,7 @@
 #include "pg.h"
 #include "print.h"
 
-cell after, ccc, err, fut, globe, loc, lock, s_d, s_globe, malformed, scope, smark, thread, vmark;
+cell after, bind, cannot_bind, ccc, err, fut, globe, loc, lock, s_d, s_globe, malformed, scope, smark, thread, unfindable, vmark;
 
 void pg_init(void)
 {
@@ -17,6 +17,8 @@ void pg_init(void)
 
   /* syms used in pg */
   after = get_sym("after");
+  bind = get_sym("bind");
+  cannot_bind = get_sym("cannot-bind");
   ccc = get_sym("ccc");
   err = get_sym("err");
   fut = get_sym("fut");
@@ -27,6 +29,7 @@ void pg_init(void)
   malformed = get_sym("malformed");
   scope = get_sym("scope");
   thread = get_sym("thread");
+  unfindable = get_sym("unfindable");
 }
 
 int atom(cell x)
@@ -139,6 +142,31 @@ cell applyf(cell f, cell args, cell a, cell s, cell r, cell m)
 /* checks stack for dynamic binding */
 int binding(cell v, cell s)
 {
+  cell b, x;
+
+  while (s) {
+    x = car(s);
+
+    if (pair(car(x))) {
+      x = car(x);
+
+      /*
+      pr(car(x));
+      printf("\n%u\n", pair(car(x)) && car(car(x)) == smark);
+      */
+
+      if (car(x) == smark && car(cdr(x)) == bind) {
+        b = car(cdr(cdr(x)));
+
+        if (car(b) == v) {
+          return b;
+        }
+      }
+    }
+
+    s = cdr(s);
+  }
+
   return 0;
 }
 
@@ -258,11 +286,12 @@ cell fu(cell op, cell args)
 
 cell evfut(cell e, cell s, cell r, cell m)
 {
-  cell a, args, es, f, result;
+  cell a, b, args, e2, es, f, result, v;
+
   f = car(e);
+  args = cdr(e);
 
   if (f == iff) {
-    args = cdr(e);
     es = car(args);
     a = car(cdr(args));
 
@@ -273,6 +302,17 @@ cell evfut(cell e, cell s, cell r, cell m)
     }
 
     return make_k(join(l2(result, a), s), cdr(r), m);
+  }
+
+  if (f == dyn) {
+    v = car(args);
+    e2 = car(cdr(args));
+    a = car(cdr(cdr(args)));
+
+    e = l2(e2, a);
+    b = l2(join(smark, join(bind, join(join(v, car(r)), 0))), 0);
+
+    return make_k(join(e, join(b, s)), r, m);
   }
 
   printf("bad fut '%s' -- EVFUT\n", nom(f));
@@ -289,13 +329,21 @@ cell evmark(cell e, cell a, cell s, cell r, cell m)
     return evfut(cdr(e), s, r, m);
   }
 
+  if (mark == bind) {
+    return make_k(s, r, m);
+  }
+
+  if (mark == loc) {
+    return sigerr(unfindable, s, r, m);
+  }
+
   printf("bad mark '%s' -- EVMARK\n", nom(mark));
   exit(1);
 }
 
 cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
 {
-  cell alt, e, mark, new;
+  cell alt, e, e1, e2, f, mark, new, v;
 
   if (op == smark) {
     return evmark(es, a, s, r, m);
@@ -325,6 +373,22 @@ cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
     mark = join(smark, join(loc, join(new, 0)));
 
     return make_k(join(l2(e, a), join(join(mark, 0), s)), r, m);
+  }
+
+  if (op == dyn) {
+    v = car(es);
+
+    if (!variable(v)) {
+      return sigerr(cannot_bind, s, r, m);
+    }
+
+    e1 = car(cdr(es));
+    e2 = car(cdr(cdr(es)));
+
+    e = l2(e1, a);
+    f = fu(dyn, l3(v, e2, a));
+
+    return make_k(join(e, join(f, s)), r, m);
   }
 
   printf("bad special -- EV_SPECIAL\n");
