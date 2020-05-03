@@ -4,7 +4,7 @@
 #include "pg.h"
 #include "print.h"
 
-cell after, bind, cannot_bind, ccc, err, fut, globe, loc, lock, s_d, s_globe, malformed, scope, smark, thread, unfindable, vmark;
+cell after, bind, cannot_bind, ccc, err, fut, globe, loc, lock, s_d, s_globe, malformed, prot, scope, smark, thread, unfindable, vmark;
 
 void pg_init(void)
 {
@@ -27,6 +27,7 @@ void pg_init(void)
   loc = get_sym("loc");
   lock = get_sym("lock");
   malformed = get_sym("malformed");
+  prot = get_sym("prot");
   scope = get_sym("scope");
   thread = get_sym("thread");
   unfindable = get_sym("unfindable");
@@ -310,9 +311,17 @@ cell evfut(cell e, cell s, cell r, cell m)
     a = car(cdr(cdr(args)));
 
     e = l2(e2, a);
+
+    /* The 'extra' list in the mark is because normally a is also bound.
+    ** It gets destructured in ev.
+    */
     b = l2(join(smark, join(bind, join(join(v, car(r)), 0))), 0);
 
     return make_k(join(e, join(b, s)), r, m);
+  }
+
+  if (f == after) {
+    return make_k(s, cdr(r), m);
   }
 
   printf("bad fut '%s' -- EVFUT\n", nom(f));
@@ -335,6 +344,11 @@ cell evmark(cell e, cell a, cell s, cell r, cell m)
 
   if (mark == loc) {
     return sigerr(unfindable, s, r, m);
+  }
+
+  if (mark == prot) {
+    e = car(cdr(e));
+    return make_k(join(e, join(fu(after, 0), s)), r, m);
   }
 
   printf("bad mark '%s' -- EVMARK\n", nom(mark));
@@ -389,6 +403,16 @@ cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
     f = fu(dyn, l3(v, e2, a));
 
     return make_k(join(e, join(f, s)), r, m);
+  }
+
+  if (op == after) {
+    e1 = car(es);
+    e2 = cdr(es);
+
+    e = l2(e1, a);
+    mark = join(smark, join(prot, join(e2, 0)));
+
+    return make_k(join(e, join(l2(mark, a), s)), r, m);
   }
 
   printf("bad special -- EV_SPECIAL\n");

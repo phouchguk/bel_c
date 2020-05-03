@@ -12,3 +12,4 @@ y
 (dyn z 'zeds-dead-baby x)
 (dyn x 'blah (dyn z 'zeds-dead-baby x))
 x
+(after 'a 'b)
