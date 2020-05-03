@@ -4,7 +4,7 @@
 #include "pg.h"
 #include "print.h"
 
-cell after, ccc, err, fut, globe, loc, lock, s_globe, malformed, scope, smark, thread, vmark;
+cell after, ccc, err, fut, globe, loc, lock, s_d, s_globe, malformed, scope, smark, thread, vmark;
 
 void pg_init(void)
 {
@@ -20,6 +20,7 @@ void pg_init(void)
   ccc = get_sym("ccc");
   err = get_sym("err");
   fut = get_sym("fut");
+  s_d = get_sym("d");
   s_globe = get_sym("globe");
   loc = get_sym("loc");
   lock = get_sym("lock");
@@ -213,15 +214,27 @@ cell lookup(cell e, cell a, cell s, cell g)
 
 cell vref(cell v, cell a, cell s, cell r, cell m)
 {
-  cell g, l;
+  cell g, it, l, w;
 
   g = car(cdr(m));
+  l = lookup(v, a, s, g);
+  w = inwhere(s);
 
-  if (inwhere(s)) {
-    return 0;
+  if (w) {
+    if (l) {
+      it = l;
+    } else {
+      /* if new create variable */
+      if (car(w)) {
+        it = join(v, 0);
+        xdr(g, join(it, cdr(g)));
+      } else {
+        return sigerr(unbound, s, r, m);
+      }
+    }
+
+    return make_k(cdr(s), join(l2(it, s_d), r), m);
   } else {
-    l = lookup(v, a, s, g);
-
     if (l) {
       return make_k(s, join(cdr(l), r), m);
     } else {
@@ -282,7 +295,7 @@ cell evmark(cell e, cell a, cell s, cell r, cell m)
 
 cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
 {
-  cell alt;
+  cell alt, e, mark, new;
 
   if (op == smark) {
     return evmark(es, a, s, r, m);
@@ -304,6 +317,14 @@ cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
     } else {
       return make_k(s, join(0, r), m);
     }
+  }
+
+  if (op == where) {
+    e = car(es);
+    new = pair(cdr(es)) ? car(cdr(es)) : 0;
+    mark = join(smark, join(loc, join(new, 0)));
+
+    return make_k(join(l2(e, a), join(join(mark, 0), s)), r, m);
   }
 
   printf("bad special -- EV_SPECIAL\n");
@@ -365,7 +386,8 @@ cell pg(cell e)
   */
 
   /* this is 'mev' - we don't have tail calls */
-  k = ev(join(l2(e, join(join(get_sym("x"), get_sym("groovy")),0)), 0), 0, l2(0, globe));
+  x = join(get_sym("a"), join(get_sym("b"), join(get_sym("c"), 0)));
+  k = ev(join(l2(e, join(join(get_sym("x"), x), 0)), 0), 0, l2(0, globe));
 
   while (1) {
     /* unpack continuation */
