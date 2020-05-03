@@ -1,3 +1,7 @@
 t
 x
 'x
+(if)
+(if t 'true)
+(if t 'true 'false)
+(if nil 'true nil 'true2 'really-false)

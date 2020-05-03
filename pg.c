@@ -4,7 +4,7 @@
 #include "pg.h"
 #include "print.h"
 
-cell after, ccc, err, globe, loc, lock, s_globe, malformed, scope, smark, thread, vmark;
+cell after, ccc, err, fut, globe, loc, lock, s_globe, malformed, scope, smark, thread, vmark;
 
 void pg_init(void)
 {
@@ -19,6 +19,7 @@ void pg_init(void)
   after = get_sym("after");
   ccc = get_sym("ccc");
   err = get_sym("err");
+  fut = get_sym("fut");
   s_globe = get_sym("globe");
   loc = get_sym("loc");
   lock = get_sym("lock");
@@ -202,7 +203,7 @@ cell lookup(cell e, cell a, cell s, cell g)
     return join(e, a);
   }
 
-  if (e == globe) {
+  if (e == s_globe) {
     return join(e, g);
   }
 
@@ -231,13 +232,78 @@ cell vref(cell v, cell a, cell s, cell r, cell m)
 
 int special(cell x)
 {
-  return x == quote || x == iff || x == where || x == dyn || x == after || x == ccc || x == thread;
+  return x == quote || x == iff || x == where || x == dyn || x == after || x == ccc || x == thread || x == smark;
+}
+
+cell fu(cell op, cell args)
+{
+  cell l;
+
+  l = join(smark, join(fut, join(op, args)));
+  return join(l, 0);
+}
+
+cell evfut(cell e, cell s, cell r, cell m)
+{
+  cell a, args, es, f, result;
+  f = car(e);
+
+  if (f == iff) {
+    args = cdr(e);
+    es = car(args);
+    a = car(cdr(args));
+
+    if (car(r)) {
+      result = car(es);
+    } else {
+      result = join(iff, cdr(es));
+    }
+
+    return make_k(join(l2(result, a), s), cdr(r), m);
+  }
+
+  printf("bad fut '%s' -- EVFUT\n", nom(f));
+  exit(1);
+}
+
+cell evmark(cell e, cell a, cell s, cell r, cell m)
+{
+  cell mark;
+  mark = car(e);
+
+  if (mark == fut) {
+    /* futs use their own a's */
+    return evfut(cdr(e), s, r, m);
+  }
+
+  printf("bad mark '%s' -- EVMARK\n", nom(mark));
+  exit(1);
 }
 
 cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
 {
+  cell alt;
+
+  if (op == smark) {
+    return evmark(es, a, s, r, m);
+  }
+
   if (op == quote) {
     return make_k(s, join(car(es), r), m);
+  }
+
+  if (op == iff) {
+    if (es) {
+      alt = s;
+
+      if (cdr(es)) {
+        alt = join(fu(iff, l2(cdr(es), a)), s);
+      }
+
+      return make_k(join(l2(car(es), a), alt), r, m);
+    } else {
+      return make_k(s, join(0, r), m);
+    }
   }
 
   printf("bad special -- EV_SPECIAL\n");
@@ -287,7 +353,7 @@ cell ev(cell w, cell r, cell m)
 
 cell pg(cell e)
 {
-  cell k, sr, s, r, m, p, g, x;
+  cell b, csr, k, sr, s, r, m, p, g, x;
 
   /* s stack (remaining exps)
   ** r return
@@ -311,19 +377,22 @@ cell pg(cell e)
     g = car(cdr(m));
 
     if (s) {
+      b = binding(lock, s);
+
       /* work to do on current thread */
-      if (cdr(binding(lock, s))) {
+      if (b && cdr(b)) {
         /* current thread is locked - reschedule current thread (do nothing) */
       } else {
-        /* schedule next thread ... */
-        sr = car(p);
-        s = car(sr);
-        r = car(cdr(sr));
-
-        sr = join(s, join(r, 0));
-        p = cdr(p);
-
         if (p) {
+          /* schedule next thread */
+          csr = join(s, join(r, 0));
+
+          sr = car(p);
+          s = car(sr);
+          r = car(cdr(sr));
+
+          p = cdr(p);
+
           /* ... push current thread to the back */
           x = p;
 
@@ -331,9 +400,9 @@ cell pg(cell e)
             x = cdr(x);
           }
 
-          xdr(x, sr);
+          xdr(x, csr);
         } else {
-          p = join(sr, 0);
+          /* same thread again */
         }
       }
     } else {
