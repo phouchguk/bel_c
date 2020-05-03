@@ -357,7 +357,7 @@ cell evmark(cell e, cell a, cell s, cell r, cell m)
 
 cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
 {
-  cell alt, e, e1, e2, f, mark, new, v;
+  cell alt, e, e1, e2, f, k, mark, new, v;
 
   if (op == smark) {
     return evmark(es, a, s, r, m);
@@ -413,6 +413,14 @@ cell ev_special(cell op, cell es, cell a, cell s, cell r, cell m)
     mark = join(smark, join(prot, join(e2, 0)));
 
     return make_k(join(e, join(l2(mark, a), s)), r, m);
+  }
+
+  if (op == ccc) {
+    f = car(es);
+    k = join(lit, join(cont, join(s, join(r, 0))));
+    e = l2(l2(f, k), a);
+
+    return make_k(e, r, m);
   }
 
   printf("bad special -- EV_SPECIAL\n");
